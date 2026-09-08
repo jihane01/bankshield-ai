@@ -1,0 +1,115 @@
+# ================================
+# OPERATING SYSTEM FILES
+# ================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*.tmp
+*.swp
+*.swo
+*~
+
+# ================================
+# IDE & EDITOR FILES
+# ================================
+
+# Visual Studio Code
+.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# IntelliJ / WebStorm / PHPStorm
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ================================
+# DEPENDENCIES (if you ever add Node.js)
+# ================================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.env
+.env.local
+.env.*.local
+
+# ================================
+# LARGE BINARY / MEDIA FILES
+# ================================
+# 🔴 IMPORTANT: GitHub has a 100 MB file limit.
+# Videos are usually huge. Do NOT commit them to Git.
+# Instead, upload them to YouTube, Google Drive, or Loom
+# and put the links in your README.md.
+
+*.mp4
+*.mov
+*.avi
+*.wmv
+*.mkv
+*.flv
+*.webm
+*.m4v
+
+# Large images / raw design files (keep only compressed JPG/PNG if needed)
+*.psd
+*.ai
+*.eps
+*.raw
+*.tiff
+*.bmp
+
+# PDFs generated from Canva (you can commit the final small PDFs, 
+# but ignore them if they are > 10MB)
+# If you want to commit the final PDF slides and poster, comment this line:
+# *.pdf
+
+# ================================
+# TEMPORARY & BACKUP FILES
+# ================================
+
+*.log
+*.cache
+*.tmp
+*.bak
+*.old
+*.orig
+*.rej
+
+# ================================
+# PROJECT-SPECIFIC (optional)
+# ================================
+
+# If you export your Postman collection with environment variables
+# and don't want to expose tokens (though your tokens are public RLS keys)
+/postman/environment.json
+
+# Ignore local test files
+/test/
+/temp/
