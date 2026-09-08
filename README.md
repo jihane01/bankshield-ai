@@ -1,8 +1,7 @@
 # BankShield AI – Détection d'Opérations Bancaires Inhabituelles
 
 **Smart Automation Challenge – Sujet 6**  
-**Équipe :** Pôle 3 – Jihane & Salma
-
+**Équipe :** Jihane Majdoul, SALMA BOUKHLAL , Yassine Hadrane ,YOUSSEF AIT BAKRIM ,ABDELOUAHED AHNID
 ## 📌 Description
 BankShield AI est un système de détection en temps réel des opérations bancaires suspectes, combinant un moteur de scoring à 12 règles et un Agent IA AML explicatif.
 
