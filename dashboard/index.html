@@ -3,1011 +3,531 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BankShield AI – Dashboard</title>
+    <title>BankShield AI – Dashboard Officiel</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
-        /* ===== STYLES ===== */
-        .card-hover:hover {
-            transform: translateY(-2px);
-            transition: all 0.2s ease;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        :root {
+            --bg-deep: #0A0F1F;
+            --bg-card: #111827;
+            --bg-card-alt: #1E293B;
+            --border-subtle: #1E2A44;
+            --cyan: #06B6D4;
+            --cyan-light: #22D3EE;
+            --blue: #2563EB;
+            --violet: #7C3AED;
+            --text-primary: #FFFFFF;
+            --text-muted: #94A3B8;
+            --crimson: #E11D48;
+            --amber: #F59E0B;
+            --yellow: #FBBF24;
+            --emerald: #10B981;
         }
-        .badge-severity {
-            padding: 2px 10px;
-            border-radius: 9999px;
-            font-size: 0.75rem;
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .card-hover:hover { 
+            transform: translateY(-2px); 
+            transition: all 0.2s ease; 
+            box-shadow: 0 10px 30px -5px rgba(6, 182, 212, 0.3);
+            border-color: var(--cyan) !important;
+        }
+
+        .bank-card {
+            background: linear-gradient(145deg, #111827 0%, #0F172A 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+        }
+
+        .bank-card-glow {
+            background: linear-gradient(145deg, #111827 0%, #0F172A 100%);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            box-shadow: 0 0 20px -5px rgba(6, 182, 212, 0.15);
+            border-radius: 12px;
+        }
+
+        .badge-severity { padding: 3px 12px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; }
+
+        /* Dark badges */
+        .bg-green-light { background-color: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .bg-red-light { background-color: rgba(225, 29, 72, 0.15); color: #FB7185; border: 1px solid rgba(225, 29, 72, 0.3); }
+        .bg-orange-light { background-color: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+        .modal-overlay { transition: opacity 0.3s ease; }
+        .modal-content { transition: transform 0.3s ease; transform: scale(0.95); }
+        .modal-open .modal-content { transform: scale(1); }
+
+        .tab-btn { 
+            transition: all 0.2s ease; 
+            border-bottom: 3px solid transparent; 
+            padding-bottom: 8px; 
+            cursor: pointer; 
+            color: var(--text-muted);
+        }
+        .tab-btn.active { 
+            border-bottom-color: var(--cyan); 
+            color: var(--cyan-light); 
             font-weight: 600;
+            text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
         }
-        .bg-green-light {
-            background-color: #dcfce7;
-            color: #166534;
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Neon title */
+        .neon-title {
+            text-shadow: 0 0 15px rgba(34, 211, 238, 0.6);
         }
-        .bg-yellow-light {
-            background-color: #fef9c3;
-            color: #854d0e;
-        }
-        .bg-red-light {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-        .bg-orange-light {
-            background-color: #ffedd5;
-            color: #9a3412;
-        }
-        .modal-overlay {
-            transition: opacity 0.3s ease;
-        }
-        .modal-content {
-            transition: transform 0.3s ease;
-            transform: scale(0.95);
-        }
-        .modal-open .modal-content {
-            transform: scale(1);
-        }
-        .ia-badge {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            color: white;
-            padding: 2px 12px;
-            border-radius: 9999px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-        .tab-btn {
-            transition: all 0.2s ease;
-            border-bottom: 3px solid transparent;
-            padding-bottom: 8px;
-            cursor: pointer;
-        }
-        .tab-btn.active {
-            border-bottom-color: #4f46e5;
-            color: #4f46e5;
-            font-weight: 600;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .badge-rule {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 9999px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin: 2px;
-        }
-        .bg-rule-1 {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        .bg-rule-2 {
-            background: #fce7f3;
-            color: #9d174d;
-        }
-        .bg-rule-3 {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        .bg-rule-4 {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        .bg-rule-5 {
-            background: #e0e7ff;
-            color: #3730a3;
-        }
-        .progress-bar {
-            height: 6px;
-            border-radius: 9999px;
-            background: #e5e7eb;
+
+        /* KPI Cards */
+        .kpi-card {
+            background: linear-gradient(145deg, #111827 0%, #0F172A 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            position: relative;
             overflow: hidden;
         }
-        .progress-bar .fill {
-            height: 100%;
-            border-radius: 9999px;
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--cyan), var(--violet));
+        }
+
+        /* Table dark */
+        table thead tr { background-color: #0F172A !important; }
+        table thead th { color: var(--text-muted) !important; border-bottom: 1px solid var(--border-subtle) !important; }
+        table tbody tr { border-bottom: 1px solid var(--border-subtle) !important; }
+        table tbody tr:hover { background-color: rgba(6, 182, 212, 0.05) !important; }
+        table tbody td { color: #E2E8F0 !important; }
+
+        /* Header */
+        header {
+            background: linear-gradient(180deg, #0F172A 0%, #0A0F1F 100%) !important;
+            border-bottom: 1px solid var(--border-subtle) !important;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0A0F1F; }
+        ::-webkit-scrollbar-thumb { background: #1E2A44; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #22D3EE 0%, #7C3AED 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans antialiased">
+<body class="font-sans antialiased">
 
-    <!-- ======================================== -->
-    <!-- EN-TÊTE -->
-    <!-- ======================================== -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between">
+    <!-- ================= EN-TÊTE ================= -->
+    <header class="sticky top-0 z-20 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between">
             <div class="flex items-center space-x-3">
-                <span class="text-2xl font-bold text-indigo-700">BankShield AI</span>
-                <span class="bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full">Dashboard</span>
+                <div class="w-9 h-9 rounded-full border-2 border-cyan-400 flex items-center justify-center" style="box-shadow: 0 0 15px rgba(34,211,238,0.5);">
+                    <div class="w-4 h-4 rounded-full bg-cyan-400"></div>
+                </div>
+                <span class="text-2xl font-bold neon-title" style="color: #22D3EE;">BankShield AI</span>
+                <span class="text-xs font-semibold px-3 py-1 rounded-full" style="background: rgba(6,182,212,0.15); color: #22D3EE; border: 1px solid rgba(6,182,212,0.3);">Dashboard</span>
             </div>
-            <div class="flex items-center space-x-4 text-sm text-gray-500">
+            <div class="flex items-center space-x-4 text-sm" style="color: var(--text-muted);">
                 <span><i class="fas fa-user-shield mr-1"></i> Admin</span>
-                <!-- INDICATEUR DE CONNEXION -->
-                <span id="connection-status" class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Connexion...</span>
-                <span id="data-source" class="text-xs text-gray-400 hidden">Source : ?</span>
+                <button id="btnGlobalReport" class="px-3 py-1 rounded-lg text-xs font-medium transition" style="background: linear-gradient(135deg, #06B6D4 0%, #7C3AED 100%); color: white;">
+                    <i class="fas fa-file-pdf mr-1"></i> Rapport Global
+                </button>
+                <span id="connection-status" class="px-2 py-1 rounded-full text-xs font-medium" style="background: rgba(245,158,11,0.15); color: #FBBF24;">Connexion...</span>
             </div>
         </div>
-        <!-- Onglets -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav class="flex space-x-6 text-sm font-medium text-gray-500 overflow-x-auto" id="tabNav">
+        <div class="max-w-7xl mx-auto px-4">
+            <nav class="flex space-x-6 text-sm font-medium overflow-x-auto">
                 <button class="tab-btn active" data-tab="overview"><i class="fas fa-th-large mr-2"></i> Vue d'ensemble</button>
-                <button class="tab-btn" data-tab="kpis"><i class="fas fa-chart-bar mr-2"></i> KPIs</button>
-                <button class="tab-btn" data-tab="charts"><i class="fas fa-chart-line mr-2"></i> Graphiques</button>
                 <button class="tab-btn" data-tab="alerts"><i class="fas fa-bell mr-2"></i> Alertes</button>
                 <button class="tab-btn" data-tab="details"><i class="fas fa-user-circle mr-2"></i> Détails client</button>
             </nav>
         </div>
     </header>
 
-    <!-- ======================================== -->
-    <!-- CONTENU PRINCIPAL -->
-    <!-- ======================================== -->
+    <!-- ================= CONTENU ================= -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-        <!-- ==================================== -->
         <!-- ONGLET 1 : VUE D'ENSEMBLE -->
-        <!-- ==================================== -->
         <div id="tab-overview" class="tab-content active">
-            <!-- KPIs compacts -->
-            <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-6" id="kpi-grid-overview">
-                <!-- Rempli par JS -->
-            </section>
-
-            <!-- Graphiques -->
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
-                <div class="lg:col-span-2 bg-white rounded-xl shadow p-4 border border-gray-100">
-                    <h2 class="text-base font-semibold text-gray-700 mb-2"><i class="fas fa-chart-line text-indigo-500 mr-2"></i> Évolution des scores (20 derniers)</h2>
-                    <div style="height:200px; position:relative;">
-                        <canvas id="riskChartOverview"></canvas>
-                    </div>
+            <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-6" id="kpi-grid-overview"></section>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="lg:col-span-2 bank-card p-4">
+                    <h2 class="text-base font-semibold mb-3" style="color: var(--text-primary);">
+                        <i class="fas fa-chart-line mr-2" style="color: #22D3EE;"></i> Évolution des scores (20 derniers)
+                    </h2>
+                    <div style="height:220px; position:relative;"><canvas id="riskChartOverview"></canvas></div>
                 </div>
-                <div class="bg-white rounded-xl shadow p-4 border border-gray-100">
-                    <h2 class="text-base font-semibold text-gray-700 mb-2"><i class="fas fa-chart-pie text-indigo-500 mr-2"></i> Répartition des risques</h2>
-                    <div style="height:200px; position:relative;">
-                        <canvas id="pieChartOverview"></canvas>
+                <div class="bank-card p-4">
+                    <h2 class="text-base font-semibold mb-3" style="color: var(--text-primary);">
+                        <i class="fas fa-chart-pie mr-2" style="color: #22D3EE;"></i> Répartition des risques
+                    </h2>
+                    <div style="height:220px; position:relative;"><canvas id="pieChartOverview"></canvas></div>
+                    <div class="mt-2 text-xs text-center" style="color: var(--text-muted);">
+                        <span class="inline-block w-3 h-3 rounded-full mr-1" style="background: #10B981;"></span> Faible <35
+                        <span class="inline-block w-3 h-3 rounded-full ml-2 mr-1" style="background: #FBBF24;"></span> Moyen 35-65
+                        <span class="inline-block w-3 h-3 rounded-full ml-2 mr-1" style="background: #F59E0B;"></span> Élevé 66-84
+                        <span class="inline-block w-3 h-3 rounded-full ml-2 mr-1" style="background: #E11D48;"></span> Critique ≥85
                     </div>
-                    <div class="mt-1 text-xs text-gray-500 text-center">
-                        <span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-1"></span> Faible
-                        <span class="inline-block w-3 h-3 bg-yellow-400 rounded-full ml-2 mr-1"></span> Moyen
-                        <span class="inline-block w-3 h-3 bg-orange-500 rounded-full ml-2 mr-1"></span> Élevé
-                        <span class="inline-block w-3 h-3 bg-red-600 rounded-full ml-2 mr-1"></span> Critique
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow p-4 border border-gray-100 flex flex-col">
-                    <h2 class="text-base font-semibold text-gray-700 mb-2"><i class="fas fa-ruler-combined text-indigo-500 mr-2"></i> Règles de scoring activées</h2>
-                    <div style="height:200px; position:relative;">
-                        <canvas id="rulesChartOverview"></canvas>
-                    </div>
-                    <div class="mt-1 text-xs text-gray-400 text-center">Fréquence des règles dans les transactions</div>
                 </div>
             </div>
 
-            <!-- Liste des alertes -->
-            <section class="bg-white rounded-xl shadow border border-gray-100 p-4">
-                <div class="flex flex-wrap items-center justify-between mb-3">
-                    <h2 class="text-base font-semibold text-gray-700"><i class="fas fa-bell text-amber-500 mr-2"></i> Alertes récentes (score ≥ 66)</h2>
-                    <span class="text-xs text-gray-400" id="alerts-count-ov">0 alerte(s)</span>
+            <!-- ⭐ NOUVEAU : HISTOGRAMME DES 12 RÈGLES DE SCORING -->
+            <div class="bank-card-glow p-4 mb-6">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-base font-semibold" style="color: var(--text-primary);">
+                        <i class="fas fa-ruler-combined mr-2" style="color: #22D3EE;"></i> Fréquence des 12 Règles de Scoring (RG-01 à RG-12)
+                    </h2>
+                    <span class="text-xs px-3 py-1 rounded-full" style="background: rgba(124,58,237,0.15); color: #A78BFA; border: 1px solid rgba(124,58,237,0.3);">
+                        <i class="fas fa-chart-bar mr-1"></i> Analyse des déclenchements
+                    </span>
                 </div>
+                <div style="height:260px; position:relative;"><canvas id="rulesHistogram"></canvas></div>
+                <div class="mt-2 text-xs text-center" style="color: var(--text-muted);">
+                    Nombre de fois où chaque règle a été déclenchée sur l'ensemble des transactions analysées
+                </div>
+            </div>
+
+            <section class="bank-card p-4">
+                <h2 class="text-base font-semibold mb-3" style="color: var(--text-primary);">
+                    <i class="fas fa-bell mr-2" style="color: #FBBF24;"></i> Alertes récentes (Score ≥ 66)
+                </h2>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50">
+                    <table class="min-w-full text-sm">
+                        <thead>
                             <tr>
-                                <th class="px-4 py-2 text-left font-medium text-gray-500">ID</th>
-                                <th class="px-4 py-2 text-left font-medium text-gray-500">Client</th>
-                                <th class="px-4 py-2 text-left font-medium text-gray-500">Montant</th>
-                                <th class="px-4 py-2 text-left font-medium text-gray-500">Score</th>
-                                <th class="px-4 py-2 text-left font-medium text-gray-500">Sévérité</th>
-                                <th class="px-4 py-2 text-left font-medium text-gray-500">Statut</th>
-                                <th class="px-4 py-2 text-left font-medium text-gray-500">Action</th>
+                                <th class="px-4 py-2 text-left font-medium">ID</th>
+                                <th class="px-4 py-2 text-left font-medium">Client</th>
+                                <th class="px-4 py-2 text-left font-medium">Montant</th>
+                                <th class="px-4 py-2 text-left font-medium">Score</th>
+                                <th class="px-4 py-2 text-left font-medium">Sévérité</th>
+                                <th class="px-4 py-2 text-left font-medium">Statut</th>
+                                <th class="px-4 py-2 text-left font-medium">Action</th>
                             </tr>
                         </thead>
                         <tbody id="alerts-table-body-ov">
-                            <tr><td colspan="7" class="text-center text-gray-400 py-4">Chargement...</td></tr>
+                            <tr><td colspan="7" class="text-center py-4" style="color: var(--text-muted);">Chargement...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </section>
         </div>
 
-        <!-- ==================================== -->
-        <!-- ONGLET 2 : KPIS DÉTAILLÉS -->
-        <!-- ==================================== -->
-        <div id="tab-kpis" class="tab-content">
-            <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-chart-bar text-indigo-500 mr-2"></i> Indicateurs clés de performance (KPIs)</h2>
-            <div id="kpi-detailed-container" class="space-y-6">
-                <!-- Rempli par JS -->
-            </div>
-            <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
-                    <h3 class="font-semibold text-gray-700 mb-4"><i class="fas fa-ruler-combined text-indigo-500 mr-2"></i> Règles de scoring activées</h3>
-                    <div id="rules-frequency" class="flex flex-wrap gap-3"></div>
-                </div>
-                <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
-                    <h3 class="font-semibold text-gray-700 mb-4"><i class="fas fa-chart-bar text-indigo-500 mr-2"></i> Fréquence des règles</h3>
-                    <div style="height:250px; position:relative;">
-                        <canvas id="rulesChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ==================================== -->
-        <!-- ONGLET 3 : GRAPHIQUES -->
-        <!-- ==================================== -->
-        <div id="tab-charts" class="tab-content">
-            <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-chart-line text-indigo-500 mr-2"></i> Graphiques détaillés</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white rounded-xl shadow p-4 border border-gray-100">
-                    <h3 class="text-base font-semibold text-gray-700 mb-2">Évolution des scores</h3>
-                    <div style="height:300px; position:relative;">
-                        <canvas id="riskChartDetailed"></canvas>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow p-4 border border-gray-100">
-                    <h3 class="text-base font-semibold text-gray-700 mb-2">Répartition des risques</h3>
-                    <div style="height:300px; position:relative;">
-                        <canvas id="pieChartDetailed"></canvas>
-                    </div>
-                    <div class="mt-2 text-xs text-gray-500 text-center">
-                        <span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-1"></span> Faible &lt;33
-                        <span class="inline-block w-3 h-3 bg-yellow-400 rounded-full ml-2 mr-1"></span> Moyen 33-65
-                        <span class="inline-block w-3 h-3 bg-orange-500 rounded-full ml-2 mr-1"></span> Élevé 66-79
-                        <span class="inline-block w-3 h-3 bg-red-600 rounded-full ml-2 mr-1"></span> Critique ≥80
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ==================================== -->
-        <!-- ONGLET 4 : ALERTES -->
-        <!-- ==================================== -->
+        <!-- ONGLET ALERTES -->
         <div id="tab-alerts" class="tab-content">
-            <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-bell text-amber-500 mr-2"></i> Toutes les alertes</h2>
-            <div class="bg-white rounded-xl shadow border border-gray-100 p-4">
-                <div class="flex flex-wrap items-center justify-between mb-3">
-                    <span class="text-sm text-gray-500">Liste complète des alertes (score ≥ 66)</span>
-                    <span class="text-xs text-gray-400" id="alerts-count-all">0 alerte(s)</span>
-                </div>
+            <h2 class="text-xl font-bold mb-4" style="color: var(--text-primary);">
+                <i class="fas fa-bell mr-2" style="color: #FBBF24;"></i> Toutes les alertes
+            </h2>
+            <div class="bank-card p-4">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50">
+                    <table class="min-w-full text-sm">
+                        <thead>
                             <tr>
-                                <th class="px-4 py-2 text-left font-medium text-gray-500">ID</th>
-                                <th class="px-4 py-2 text-left font-medium text-gray-500">Client</th>
-                                <th class="px-4 py-2 text-left font-medium text-gray-500">Montant</th>
-                                <th class="px-4 py-2 text-left font-medium text-gray-500">Score</th>
-                                <th class="px-4 py-2 text-left font-medium text-gray-500">Sévérité</th>
-                                <th class="px-4 py-2 text-left font-medium text-gray-500">Statut</th>
-                                <th class="px-4 py-2 text-left font-medium text-gray-500">Action</th>
+                                <th class="px-4 py-2 text-left font-medium">ID</th>
+                                <th class="px-4 py-2 text-left font-medium">Client</th>
+                                <th class="px-4 py-2 text-left font-medium">Montant</th>
+                                <th class="px-4 py-2 text-left font-medium">Score</th>
+                                <th class="px-4 py-2 text-left font-medium">Sévérité</th>
+                                <th class="px-4 py-2 text-left font-medium">Statut</th>
+                                <th class="px-4 py-2 text-left font-medium">Action</th>
                             </tr>
                         </thead>
                         <tbody id="alerts-table-body-all">
-                            <tr><td colspan="7" class="text-center text-gray-400 py-4">Chargement...</td></tr>
+                            <tr><td colspan="7" class="text-center py-4" style="color: var(--text-muted);">Chargement...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ==================================== -->
-        <!-- ONGLET 5 : DÉTAILS CLIENT -->
-        <!-- ==================================== -->
+        <!-- ONGLET DÉTAILS CLIENT -->
         <div id="tab-details" class="tab-content">
-            <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-user-circle text-indigo-500 mr-2"></i> Recherche et détails client</h2>
-            <div class="bg-white rounded-xl shadow p-4 border border-gray-100">
+            <h2 class="text-xl font-bold mb-4" style="color: var(--text-primary);">
+                <i class="fas fa-user-circle mr-2" style="color: #22D3EE;"></i> Recherche et détails client
+            </h2>
+            <div class="bank-card p-4">
                 <div class="flex flex-wrap gap-4 mb-4">
-                    <div class="flex-1 min-w-[200px]">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Rechercher</label>
-                        <input type="text" id="searchInput" placeholder="ID transaction ou nom client" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                    <button id="searchBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition self-end">
+                    <input type="text" id="searchInput" placeholder="ID transaction ou nom client" 
+                        class="flex-1 min-w-[200px] px-4 py-2 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500" 
+                        style="background: #0F172A; border: 1px solid #1E2A44; color: white;">
+                    <button id="searchBtn" class="px-4 py-2 rounded-lg text-sm font-medium transition" 
+                        style="background: linear-gradient(135deg, #06B6D4 0%, #2563EB 100%); color: white;">
                         <i class="fas fa-search mr-1"></i> Rechercher
                     </button>
                 </div>
-                <div id="searchResults" class="text-sm text-gray-500">
+                <div id="searchResults" class="text-sm" style="color: var(--text-muted);">
                     <p class="italic">Entrez un ID ou un nom pour afficher les détails.</p>
                 </div>
             </div>
         </div>
-
     </main>
 
-    <!-- ======================================== -->
-    <!-- MODAL DÉTAILS -->
-    <!-- ======================================== -->
-    <div id="detailModal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden" style="background: rgba(0,0,0,0.5);">
-        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto modal-content p-6">
+    <!-- MODAL DETAILS -->
+    <div id="detailModal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden" style="background: rgba(0,0,0,0.75);">
+        <div class="bank-card-glow max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto modal-content p-6">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-gray-800"><i class="fas fa-user-circle text-indigo-600 mr-2"></i> Détails du client & transaction</h3>
-                <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+                <h3 class="text-lg font-bold" style="color: var(--text-primary);">
+                    <i class="fas fa-user-circle mr-2" style="color: #22D3EE;"></i> Détails du client & transaction
+                </h3>
+                <button id="closeModalBtn" class="text-xl" style="color: var(--text-muted);">&times;</button>
             </div>
-            <div id="modalContent" class="space-y-4">
-                <!-- Rempli par JS -->
-            </div>
-            <div id="modalActions" class="mt-6 pt-4 border-t border-gray-200 flex flex-wrap gap-3 justify-end">
-                <button id="modalBtnFraud" class="px-5 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+            <div id="modalContent" class="space-y-4"></div>
+            <div id="modalActions" class="mt-6 pt-4 flex flex-wrap gap-3 justify-end" style="border-top: 1px solid var(--border-subtle);">
+                <button id="modalBtnReport" class="px-5 py-2 rounded-lg text-sm font-medium transition" style="background: linear-gradient(135deg, #06B6D4 0%, #2563EB 100%); color: white;">
+                    <i class="fas fa-file-pdf mr-1"></i> Rapport Client
+                </button>
+                <button id="modalBtnFraud" class="px-5 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed" style="background: linear-gradient(135deg, #E11D48 0%, #BE123C 100%); color: white;">
                     <i class="fas fa-exclamation-triangle mr-1"></i> Confirmer Fraude
                 </button>
-                <button id="modalBtnFalsePositive" class="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                <button id="modalBtnFalsePositive" class="px-5 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white;">
                     <i class="fas fa-check-circle mr-1"></i> Faux Positif
                 </button>
-                <span id="modalArbitrageMessage" class="text-xs text-gray-500 self-center"></span>
+                <span id="modalArbitrageMessage" class="text-xs self-center" style="color: var(--text-muted);"></span>
             </div>
         </div>
     </div>
 
-    <!-- ======================================== -->
-    <!-- JAVASCRIPT (Connexion Supabase + Simulation) -->
-    <!-- ======================================== -->
+    <!-- ================= JAVASCRIPT ================= -->
     <script>
-        // ================================================================
         // 1. CONFIGURATION SUPABASE
-        // ================================================================
         const SUPABASE_URL = 'https://dayemaufmjhwhoelmctf.supabase.co';
-        const SUPABASE_ANON_KEY =
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRheWVtYXVmbWpod2hvZWxtY3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3OTk1NDYsImV4cCI6MjEwNDM3NTU0Nn0.jiP7q794VRIWR9Sx6IKgHde2m3Xe8xN1OAtdK2EMeV8';
-
-        // Initialisation du client Supabase (exemple du cahier des charges)
+        const SUPABASE_ANON_KEY = 'sb_publishable_SptSF_lMowhhTLWsmy33Aw_b_8A176_';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // ================================================================
-        // 2. MAPPING DES RÈGLES (CODE → NOM COMPLET)
-        // ================================================================
+        // ⭐ Mapping des codes de règles aux noms lisibles
         const RULE_NAMES = {
             'RG-01': 'Montant extrême',
             'RG-01b': 'Montant inhabituel',
             'RG-02': 'Vidage de solde',
             'RG-03': 'Dépassement plafond',
-            'RG-04': 'Pays étranger inhabituel',
+            'RG-04': 'Pays étranger',
             'RG-05': 'Voyage impossible',
             'RG-06': 'Nouveau bénéficiaire',
-            'RG-07': 'Heure nocturne',
+            'RG-07': 'Horaire nocturne',
             'RG-08': 'Vélocité (Smurfing)',
-            'RG-09': 'Changement de canal',
-            'RG-10': 'Marchand à haut risque',
+            'RG-09': 'Changement canal',
+            'RG-10': 'Marchand à risque',
             'RG-11': 'Tiers de confiance',
-            'RG-12': 'TPE carte + PIN'
+            'RG-12': 'TPE Carte + PIN'
         };
 
-        function getRuleName(code) {
-            return RULE_NAMES[code] || code;
-        }
-
-        // ================================================================
-        // 3. DONNÉES MOCK (fallback)
-        // ================================================================
-        function generateMockData() {
-            const clients = [
-                { name: 'Jean Dupont', email: 'jean.dupont@email.ma', phone: '+212 6 12 34 56 78' },
-                { name: 'Marie Martin', email: 'marie.martin@email.ma', phone: '+212 6 23 45 67 89' },
-                { name: 'Ahmed Benani', email: 'ahmed.benani@email.ma', phone: '+212 6 34 56 78 90' },
-                { name: 'Sophie Lefevre', email: 'sophie.lefevre@email.ma', phone: '+212 6 45 67 89 01' },
-                { name: 'Carlos Garcia', email: 'carlos.garcia@email.ma', phone: '+212 6 56 78 90 12' },
-                { name: 'Fatima Zahra', email: 'fatima.zahra@email.ma', phone: '+212 6 67 89 01 23' },
-                { name: 'Youssef Mansouri', email: 'youssef.mansouri@email.ma', phone: '+212 6 78 90 12 34' },
-                { name: 'Amina Tazi', email: 'amina.tazi@email.ma', phone: '+212 6 89 01 23 45' },
-                { name: 'Hassan El Fassi', email: 'hassan.elfassi@email.ma', phone: '+212 6 90 12 34 56' },
-                { name: 'Nadia Belkhayat', email: 'nadia.belkhayat@email.ma', phone: '+212 6 01 23 45 67' }
-            ];
-            const now = Date.now();
-            const txns = [];
-            const ruleCodes = Object.keys(RULE_NAMES);
-            for (let i = 0; i < 60; i++) {
-                let score;
-                if (i < 12) score = Math.floor(Math.random() * 30) + 70;
-                else if (i < 25) score = Math.floor(Math.random() * 30) + 40;
-                else score = Math.floor(Math.random() * 40);
-                const client = clients[i % clients.length];
-                const type = ['Virement', 'Paiement Carte', 'Retrait', 'Prélèvement'][i % 4];
-                const country = i % 3 === 0 ? 'Maroc' : (i % 3 === 1 ? 'Sénégal' : 'France');
-                const triggered = [];
-                const nbRules = Math.floor(Math.random() * 4) + 1;
-                for (let j = 0; j < nbRules; j++) {
-                    const idx = Math.floor(Math.random() * ruleCodes.length);
-                    if (!triggered.includes(ruleCodes[idx])) triggered.push(ruleCodes[idx]);
-                }
-                txns.push({
-                    id: `txn-${String(i+1).padStart(3,'0')}`,
-                    customer_name: client.name,
-                    email: client.email,
-                    phone: client.phone,
-                    amount: Math.round((Math.random() * 50000 + 100) / 100) * 100,
-                    risk_score: score,
-                    timestamp: new Date(now - i * 1800000).toISOString(),
-                    transaction_type: type,
-                    country: country,
-                    iban: `MA${String(Math.floor(Math.random() * 9)+1).padStart(2,'0')}${String(Math.floor(Math.random() * 1000000000)).padStart(10,'0')}`,
-                    triggered_rules: triggered
-                });
-            }
-            txns.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-            // Alertes
-            const alerts = txns.filter(t => t.risk_score >= 66).map((t, index) => {
-                const isCritical = t.risk_score >= 80;
-                const summaries = [
-                    isCritical ?
-                        '🔴 Virement nocturne de montant exceptionnel vers un bénéficiaire inconnu au Sénégal. Écart de 550% par rapport à la moyenne du client.' :
-                        '🟠 Opération inhabituelle : montant élevé et canal web inattendu. Écart de 200% par rapport à la moyenne.',
-                    isCritical ?
-                        '🚨 Transaction critique : le client n\'a jamais effectué d\'opération de ce montant depuis ce pays. Bénéficiaire inconnu.' :
-                        '⚠️ Opération présentant un risque modéré : montant supérieur à la moyenne mais cohérent avec le profil général.'
-                ];
-                const actions = [
-                    isCritical ?
-                        'Suspension conservatoire immédiate. Appel téléphonique de vérification.' :
-                        'Vérification complémentaire : envoyer un SMS de confirmation au client.',
-                    isCritical ?
-                        'Bloquer la transaction. Mettre en quarantaine le compte. Escalader au responsable conformité.' :
-                        'Contacter le client par email pour confirmer l\'opération.'
-                ];
-                const idx = index % summaries.length;
-                return {
-                    id: `alert-${t.id}`,
-                    transaction_id: t.id,
-                    severity: isCritical ? 'CRITICAL' : 'HIGH',
-                    analyst_decision: ['pending', 'pending', 'pending', 'confirmed_fraud', 'false_positive'][Math.floor(Math
-                    .random() * 5)],
-                    created_at: t.timestamp,
-                    ai_summary: summaries[idx],
-                    ai_action_recommendation: actions[idx]
-                };
-            });
-
-            return { transactions: txns, alerts };
-        }
-
-        // ================================================================
-        // 4. CHARGEMENT DES DONNÉES (Supabase ou fallback)
-        // ================================================================
         let allTransactions = [];
         let allAlerts = [];
+        let allCustomers = [];
         let selectedAlertId = null;
         let chartInstances = {};
 
+        // 2. CHARGEMENT DES DONNÉES
         async function loadData() {
             const statusEl = document.getElementById('connection-status');
-            const sourceEl = document.getElementById('data-source');
-
             statusEl.textContent = 'Connexion...';
-            statusEl.className = 'px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800';
-            sourceEl.classList.add('hidden');
-
+            
             try {
-                let txns = null;
-                let alerts = null;
-                let dataSourceText = '';
-                let connectedToSupabase = false;
+                const [txnRes, riskRes, alertRes, custRes] = await Promise.all([
+                    supabaseClient.from('transactions').select('*').order('timestamp', { ascending: false }).limit(100),
+                    supabaseClient.from('risk_evaluations').select('*'),
+                    supabaseClient.from('fraud_alerts').select('*').order('alert_id', { ascending: false }),
+                    supabaseClient.from('customers').select('*')
+                ]);
 
-                // 1. Récupérer les 50 dernières transactions (exemple du cahier des charges)
-                //    Utilisation de la méthode exacte : from('transactions').select('*').order('timestamp', { ascending: false }).limit(50)
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('transactions')
-                        .select('*')
-                        .order('timestamp', { ascending: false })
-                        .limit(50);
-                    if (error) throw error;
-                    txns = data;
-                    connectedToSupabase = true;
-                } catch (e) {
-                    console.warn('Table transactions non trouvée dans Supabase', e.message);
-                }
+                if (txnRes.error) throw new Error("Erreur transactions: " + txnRes.error.message);
+                if (riskRes.error) throw new Error("Erreur risk_evaluations: " + riskRes.error.message);
+                if (alertRes.error) throw new Error("Erreur fraud_alerts: " + alertRes.error.message);
+                if (custRes.error) throw new Error("Erreur customers: " + custRes.error.message);
 
-                if (!txns || txns.length === 0) {
-                    // Fallback : données mockées
-                    console.warn('Aucune donnée réelle. Utilisation de données simulées.');
-                    const mock = generateMockData();
-                    txns = mock.transactions;
-                    alerts = mock.alerts;
-                    dataSourceText = '📊 Données simulées (fallback)';
-                    statusEl.textContent = '⚠️ Simulation';
-                    statusEl.className = 'px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800';
-                } else {
-                    // Lecture des alertes
-                    try {
-                        const { data, error } = await supabaseClient
-                            .from('alerts')
-                            .select('*')
-                            .order('created_at', { ascending: false })
-                            .limit(50);
-                        if (error) throw error;
-                        alerts = data;
-                    } catch (e) {
-                        console.warn('Table alerts non trouvée dans Supabase', e.message);
-                        alerts = [];
-                    }
+                const txnsData = txnRes.data || [];
+                const riskData = riskRes.data || [];
+                const alertsData = alertRes.data || [];
+                const custData = custRes.data || [];
 
-                    // Normalisation : si les alertes n'ont pas de champs IA, on les génère
-                    if (alerts && alerts.length > 0) {
-                        const firstAlert = alerts[0];
-                        if (!firstAlert.ai_summary) {
-                            alerts = alerts.map(a => {
-                                const txn = txns.find(t => t.id === a.transaction_id);
-                                const score = txn ? txn.risk_score : 0;
-                                const isCritical = score >= 80;
-                                return {
-                                    ...a,
-                                    ai_summary: isCritical ?
-                                        '🔴 Opération très suspecte : montant inhabituel, pays étranger, heure creuse.' :
-                                        '🟠 Comportement anormal : écart significatif par rapport aux habitudes du client.',
-                                    ai_action_recommendation: isCritical ?
-                                        'Blocage immédiat recommandé. Contacter le service fraude.' :
-                                        'Vérification supplémentaire conseillée par email ou SMS.'
-                                };
-                            });
-                        }
-                    }
+                const custMap = {};
+                custData.forEach(c => custMap[c.customer_id] = c);
 
-                    dataSourceText = '📈 Données réelles Supabase';
-                    statusEl.textContent = '✅ Supabase';
-                    statusEl.className = 'px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800';
-                }
+                const riskMap = {};
+                riskData.forEach(r => riskMap[r.transaction_id] = r);
 
-                // Normalisation des colonnes (pour les données réelles)
-                if (txns && txns.length > 0) {
-                    const first = txns[0];
-                    if (first.hasOwnProperty('score') && !first.hasOwnProperty('risk_score')) {
-                        txns = txns.map(t => ({ ...t, risk_score: t.score }));
-                    }
-                    if (first.hasOwnProperty('montant') && !first.hasOwnProperty('amount')) {
-                        txns = txns.map(t => ({ ...t, amount: t.montant }));
-                    }
-                    if (first.hasOwnProperty('client') && !first.hasOwnProperty('customer_name')) {
-                        txns = txns.map(t => ({ ...t, customer_name: t.client }));
-                    }
-                    txns = txns.map(t => ({ ...t, risk_score: parseFloat(t.risk_score) || 0 }));
-                    txns = txns.map(t => ({
+                const alertMap = {};
+                alertsData.forEach(a => alertMap[a.transaction_id] = a);
+
+                allTransactions = txnsData.map(t => {
+                    const cust = custMap[t.customer_id] || {};
+                    const risk = riskMap[t.transaction_id] || {};
+                    const alert = alertMap[t.transaction_id] || {};
+
+                    return {
                         ...t,
-                        triggered_rules: Array.isArray(t.triggered_rules) ? t.triggered_rules : []
-                    }));
-                }
+                        display_id: String(t.transaction_id ?? "").slice(0, 10),
+                        customer_name: cust.full_name || 'Client Inconnu',
+                        home_city: cust.home_city || 'Inconnue',
+                        phone: cust.phone_number || 'Non renseigné',
+                        risk_score: risk.risk_score || 0,
+                        risk_level: risk.risk_level || 'LOW',
+                        triggered_rules: risk.triggered_rules || [],
+                        applied_mitigations: risk.applied_mitigations || [],
+                        engine_decision: risk.engine_decision || 'APPROVED',
+                        severity_db: alert.severity || risk.risk_level || 'MEDIUM',
+                        ai_summary: alert.ai_investigation_summary || 'Analyse IA en cours...',
+                        ai_action_recommendation: alert.ai_recommendation || 'Vérification manuelle requise.',
+                        analyst_decision: alert.analyst_decision || 'PENDING',
+                        alert_id: alert.alert_id || null
+                    };
+                });
 
-                allTransactions = txns || [];
-                allAlerts = alerts || [];
+                allAlerts = alertsData;
+                allCustomers = custData;
 
-                sourceEl.textContent = dataSourceText;
-                sourceEl.classList.remove('hidden');
-
-                // Mise à jour de l'interface
+                statusEl.textContent = '✅ Supabase Connectée';
+                statusEl.className = 'px-2 py-1 rounded-full text-xs font-medium';
+                statusEl.style.background = 'rgba(16,185,129,0.15)';
+                statusEl.style.color = '#34D399';
+                statusEl.style.border = '1px solid rgba(16,185,129,0.3)';
+                
                 updateAll();
-
             } catch (error) {
-                console.error('Erreur globale :', error);
+                console.error("Erreur globale :", error);
                 statusEl.textContent = '❌ Erreur';
-                statusEl.className = 'px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800';
-                const mock = generateMockData();
-                allTransactions = mock.transactions;
-                allAlerts = mock.alerts;
-                document.getElementById('data-source').textContent = '📊 Données simulées (secours)';
-                document.getElementById('data-source').classList.remove('hidden');
-                updateAll();
+                statusEl.style.background = 'rgba(225,29,72,0.15)';
+                statusEl.style.color = '#FB7185';
             }
         }
 
-        // ================================================================
-        // 5. MISE À JOUR GLOBALE
-        // ================================================================
+        // 3. MISE À JOUR GLOBALE
         function updateAll() {
             updateKPIsOverview();
-            updateKPIsDetailed();
-            updateRulesFrequency();
-            updateRulesChartOverview();
-            updateRulesChart();
             updateCharts();
+            updateRulesHistogram();
             updateAlertsTable('ov');
             updateAlertsTable('all');
-            updateAlertCounts();
         }
 
-        // ================================================================
-        // 6. KPIs (version compacte) - avec les 7 KPIs officiels
-        // ================================================================
+        // 4. KPIs
         function updateKPIsOverview() {
             const txns = allTransactions;
             const alerts = allAlerts;
 
-            // 1. Volume Total Analysé
-            const totalVolume = txns.length;
-
-            // 2. Taux d'Anomalies (%)
-            const anomalies = txns.filter(t => (t.risk_score || 0) >= 66).length;
-            const anomalyRate = totalVolume > 0 ? (anomalies / totalVolume) * 100 : 0;
-
-            // 3. Score Moyen de Risque
-            const avgScore = totalVolume > 0 ? txns.reduce((sum, t) => sum + (t.risk_score || 0), 0) / totalVolume : 0;
-
-            // 4. Alertes Critiques Ouvertes
-            const criticalOpen = alerts.filter(a =>
-                a.severity === 'CRITICAL' && (a.analyst_decision === 'pending' || !a.analyst_decision)
-            ).length;
-
-            // 5. Montant Total sous Risque
-            const totalRiskAmount = txns
-                .filter(t => (t.risk_score || 0) >= 66)
-                .reduce((sum, t) => sum + (t.amount || 0), 0);
-
-            // 6. Temps Moyen de Traitement (fixe, respect SLA)
-            const avgProcessingTime = 2.3; // < 2.5 secondes
-
-            // 7. Taux de Faux Positifs (%)
-            const totalAlerts = alerts.length;
-            const falsePositives = alerts.filter(a => a.analyst_decision === 'false_positive').length;
-            const falsePositiveRate = totalAlerts > 0 ? (falsePositives / totalAlerts) * 100 : 0;
+            const volume = txns.length;
+            const anomalies = txns.filter(t => t.risk_score >= 65).length;
+            const tauxAnomalies = volume > 0 ? (anomalies / volume * 100).toFixed(1) + '%' : '0%';
+            const scoreMoyen = volume > 0 ? (txns.reduce((s, t) => s + (t.risk_score || 0), 0) / volume).toFixed(1) : '0';
+            const alertesCritiques = alerts.filter(a => a.severity === 'CRITICAL' && a.analyst_decision === 'PENDING').length;
+            const montantRisque = txns.filter(t => t.risk_score >= 65).reduce((s, t) => s + (t.amount || 0), 0).toFixed(0) + ' MAD';
+            const tempsMoyen = '2.3s'; 
+            const totalAlertes = alerts.length;
+            const fauxPositifs = alerts.filter(a => a.analyst_decision === 'FALSE_POSITIVE').length;
+            const tauxFP = totalAlertes > 0 ? (fauxPositifs / totalAlertes * 100).toFixed(1) + '%' : '0%';
 
             const kpiData = [
-                { label: 'Volume Total Analysé', value: totalVolume, icon: 'fa-arrow-right', color: 'text-blue-600' },
-                { label: "Taux d'Anomalies (%)", value: `${anomalyRate.toFixed(1)}%`, icon: 'fa-exclamation-triangle',
-                    color: 'text-amber-500' },
-                { label: 'Score Moyen de Risque', value: avgScore.toFixed(1), icon: 'fa-chart-simple',
-                    color: 'text-sky-500' },
-                { label: 'Alertes Critiques Ouvertes', value: criticalOpen, icon: 'fa-bell', color: 'text-red-500' },
-                { label: 'Montant Total sous Risque', value: `${totalRiskAmount.toFixed(0)} MAD`, icon: 'fa-money-bill-wave',
-                    color: 'text-red-600' },
-                { label: 'Temps Moyen de Traitement', value: `${avgProcessingTime}s`, icon: 'fa-clock',
-                    color: 'text-emerald-600' },
-                { label: 'Taux de Faux Positifs (%)', value: `${falsePositiveRate.toFixed(1)}%`, icon: 'fa-check-circle',
-                    color: 'text-emerald-500' }
+                { label: '1. Volume Total Analysé', value: volume, icon: 'fa-arrow-right', color: '#22D3EE' },
+                { label: '2. Taux d\'Anomalies (%)', value: tauxAnomalies, icon: 'fa-exclamation-triangle', color: '#FBBF24' },
+                { label: '3. Score Moyen de Risque', value: scoreMoyen, icon: 'fa-chart-simple', color: '#60A5FA' },
+                { label: '4. Alertes Critiques Ouvertes', value: alertesCritiques, icon: 'fa-bell', color: '#FB7185' },
+                { label: '5. Montant Total sous Risque', value: montantRisque, icon: 'fa-money-bill-wave', color: '#E11D48' },
+                { label: '6. Temps Moyen de Traitement', value: tempsMoyen, icon: 'fa-clock', color: '#34D399' },
+                { label: '7. Taux de Faux Positifs (%)', value: tauxFP, icon: 'fa-check-circle', color: '#10B981' }
             ];
 
             const grid = document.getElementById('kpi-grid-overview');
             grid.innerHTML = kpiData.map(kpi => `
-                        <div class="bg-white rounded-xl shadow p-3 border border-gray-100 card-hover">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">${kpi.label}</span>
-                                <i class="fas ${kpi.icon} ${kpi.color} text-sm"></i>
-                            </div>
-                            <div class="mt-1 text-lg font-bold text-gray-800">${kpi.value}</div>
-                        </div>
-                    `).join('');
+                <div class="kpi-card p-3 card-hover">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-medium uppercase tracking-wider" style="color: var(--text-muted);">${kpi.label}</span>
+                        <i class="fas ${kpi.icon} text-sm" style="color: ${kpi.color};"></i>
+                    </div>
+                    <div class="mt-1 text-lg font-bold" style="color: ${kpi.color};">${kpi.value}</div>
+                </div>`).join('');
         }
 
-        // ================================================================
-        // 7. KPIS DÉTAILLÉS (avec règles contributives)
-        // ================================================================
-        function updateKPIsDetailed() {
-            const txns = allTransactions;
-            const alerts = allAlerts;
+        // 5. TABLEAUX DES ALERTES
+        function updateAlertsTable(suffix) {
+            const tbody = document.getElementById(`alerts-table-body-${suffix}`);
+            const alertTxns = allTransactions.filter(t => (t.risk_score || 0) >= 66).slice(0, suffix === 'all' ? 50 : 20);
 
-            const totalVolume = txns.length;
-            const anomalies = txns.filter(t => (t.risk_score || 0) >= 66).length;
-            const anomalyRate = totalVolume > 0 ? (anomalies / totalVolume) * 100 : 0;
-            const avgScore = totalVolume > 0 ? txns.reduce((sum, t) => sum + (t.risk_score || 0), 0) / totalVolume : 0;
-            const criticalOpen = alerts.filter(a =>
-                a.severity === 'CRITICAL' && (a.analyst_decision === 'pending' || !a.analyst_decision)
-            ).length;
-            const totalRiskAmount = txns
-                .filter(t => (t.risk_score || 0) >= 66)
-                .reduce((sum, t) => sum + (t.amount || 0), 0);
-            const falsePositives = alerts.filter(a => a.analyst_decision === 'false_positive').length;
-            const falsePositiveRate = alerts.length > 0 ? (falsePositives / alerts.length) * 100 : 0;
-            const avgProcessingTime = 2.3;
-
-            const rulesForAnomalies = ['Montant extrême', 'Pays étranger inhabituel', 'Nouveau bénéficiaire', 'Heure nocturne',
-                'Montant inhabituel'
-            ];
-            const rulesForCritical = ['Montant extrême', 'Pays étranger inhabituel', 'Nouveau bénéficiaire', 'Heure nocturne'];
-            const rulesForFalsePositive = ['Tiers de confiance', 'TPE carte + PIN', 'Montant inhabituel'];
-
-            const kpiData = [{
-                label: 'Volume Total Analysé',
-                value: totalVolume,
-                description: 'Nombre total d\'opérations examinées par le système.',
-                icon: 'fa-arrow-right',
-                color: 'text-blue-600',
-                bgColor: 'bg-blue-50',
-                rules: [],
-                progress: 100,
-                unit: ''
-            }, {
-                label: "Taux d'Anomalies (%)",
-                value: `${anomalyRate.toFixed(1)}%`,
-                description: 'Proportion de transactions ayant déclenché une alerte (score ≥ 66).',
-                icon: 'fa-exclamation-triangle',
-                color: 'text-amber-500',
-                bgColor: 'bg-amber-50',
-                rules: rulesForAnomalies,
-                progress: Math.min(anomalyRate, 100),
-                unit: '%'
-            }, {
-                label: 'Score Moyen de Risque',
-                value: avgScore.toFixed(1),
-                description: 'Niveau de risque global du portefeuille bancaire.',
-                icon: 'fa-chart-simple',
-                color: 'text-sky-500',
-                bgColor: 'bg-sky-50',
-                rules: [],
-                progress: (avgScore / 100) * 100,
-                unit: '/100'
-            }, {
-                label: 'Alertes Critiques Ouvertes',
-                value: criticalOpen,
-                description: 'Nombre d\'alertes en attente de décision de l\'analyste.',
-                icon: 'fa-bell',
-                color: 'text-red-500',
-                bgColor: 'bg-red-50',
-                rules: rulesForCritical,
-                progress: Math.min(criticalOpen * 10, 100),
-                unit: ''
-            }, {
-                label: 'Montant Total sous Risque',
-                value: `${totalRiskAmount.toFixed(0)} MAD`,
-                description: 'Cumul financier des transactions suspectes détectées.',
-                icon: 'fa-money-bill-wave',
-                color: 'text-red-600',
-                bgColor: 'bg-red-50',
-                rules: [],
-                progress: Math.min((totalRiskAmount / 500000) * 100, 100),
-                unit: ' MAD'
-            }, {
-                label: 'Temps Moyen de Traitement',
-                value: `${avgProcessingTime}s`,
-                description: 'Vélocité d\'ingestion et de qualification du moteur (SLA < 2.5s).',
-                icon: 'fa-clock',
-                color: 'text-emerald-600',
-                bgColor: 'bg-emerald-50',
-                rules: [],
-                progress: 100,
-                unit: 's'
-            }, {
-                label: 'Taux de Faux Positifs (%)',
-                value: `${falsePositiveRate.toFixed(1)}%`,
-                description: 'Pourcentage d\'alertes reclassées en opérations légitimes.',
-                icon: 'fa-check-circle',
-                color: 'text-emerald-500',
-                bgColor: 'bg-emerald-50',
-                rules: rulesForFalsePositive,
-                progress: Math.min(falsePositiveRate, 100),
-                unit: '%'
-            }];
-
-            const container = document.getElementById('kpi-detailed-container');
-            container.innerHTML = kpiData.map(kpi => `
-                        <div class="bg-white rounded-xl shadow p-5 border border-gray-100 card-hover">
-                            <div class="flex items-start gap-4">
-                                <div class="w-10 h-10 rounded-full ${kpi.bgColor} flex items-center justify-center text-xl ${kpi.color}">
-                                    <i class="fas ${kpi.icon}"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="flex flex-wrap items-center justify-between">
-                                        <h3 class="text-base font-semibold text-gray-800">${kpi.label}</h3>
-                                        <span class="text-2xl font-bold text-gray-900">${kpi.value}</span>
-                                    </div>
-                                    <p class="text-sm text-gray-500 mt-1">${kpi.description}</p>
-                                    <div class="mt-2 progress-bar w-full">
-                                        <div class="fill ${kpi.color.replace('text-', 'bg-')}" style="width: ${kpi.progress}%;"></div>
-                                    </div>
-                                    ${kpi.rules.length > 0 ? `
-                                        <div class="mt-3 flex flex-wrap gap-1">
-                                            <span class="text-xs font-medium text-gray-500 mr-2">Règles contributives :</span>
-                                            ${kpi.rules.map(r => `<span class="badge-rule bg-rule-${Math.floor(Math.random()*5)+1}">${r}</span>`).join('')}
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-        }
-
-        // ================================================================
-        // 8. FRÉQUENCE DES RÈGLES
-        // ================================================================
-        function updateRulesFrequency() {
-            const ruleCount = {};
-            allTransactions.forEach(t => {
-                if (t.triggered_rules && Array.isArray(t.triggered_rules)) {
-                    t.triggered_rules.forEach(r => {
-                        const name = getRuleName(r);
-                        ruleCount[name] = (ruleCount[name] || 0) + 1;
-                    });
-                }
-            });
-            const sorted = Object.entries(ruleCount).sort((a, b) => b[1] - a[1]);
-            const totalTx = allTransactions.length;
-            const container = document.getElementById('rules-frequency');
-            if (sorted.length === 0) {
-                container.innerHTML = '<p class="text-gray-400 text-sm">Aucune règle déclenchée dans les données.</p>';
-                return;
-            }
-            const colors = ['bg-rule-1', 'bg-rule-2', 'bg-rule-3', 'bg-rule-4', 'bg-rule-5'];
-            container.innerHTML = sorted.map(([rule, count], idx) => `
-                        <div class="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
-                            <span class="badge-rule ${colors[idx % colors.length]}">${rule}</span>
-                            <span class="text-sm font-medium text-gray-700">${count}</span>
-                            <span class="text-xs text-gray-400">(${(count/totalTx*100).toFixed(1)}% des txns)</span>
-                        </div>
-                    `).join('');
-        }
-
-        // ================================================================
-        // 9. CHART DES TOP RÈGLES (Vue d'ensemble)
-        // ================================================================
-        let rulesChartOverviewInstance = null;
-
-        function updateRulesChartOverview() {
-            const ctx = document.getElementById('rulesChartOverview').getContext('2d');
-            const ruleCount = {};
-            allTransactions.forEach(t => {
-                if (t.triggered_rules && Array.isArray(t.triggered_rules)) {
-                    t.triggered_rules.forEach(r => {
-                        const name = getRuleName(r);
-                        ruleCount[name] = (ruleCount[name] || 0) + 1;
-                    });
-                }
-            });
-            const sorted = Object.entries(ruleCount).sort((a, b) => b[1] - a[1]);
-            const labels = sorted.map(item => item[0]);
-            const data = sorted.map(item => item[1]);
-
-            if (rulesChartOverviewInstance) rulesChartOverviewInstance.destroy();
-
-            if (labels.length === 0) {
-                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                ctx.font = '14px sans-serif';
-                ctx.fillStyle = '#9ca3af';
-                ctx.textAlign = 'center';
-                ctx.fillText('Aucune règle déclenchée', ctx.canvas.width / 2, ctx.canvas.height / 2);
+            if (alertTxns.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4" style="color: var(--text-muted);">✅ Aucune alerte</td></tr>`;
                 return;
             }
 
-            const colors = ['#4f46e5', '#7c3aed', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ef4444', '#14b8a6',
-                '#f97316'
-            ];
-            const backgroundColors = labels.map((_, i) => colors[i % colors.length]);
+            let html = '';
+            alertTxns.forEach(txn => {
+                const decision = txn.analyst_decision || 'PENDING';
+                const severity = txn.severity_db || txn.risk_level || 'HIGH';
 
-            rulesChartOverviewInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Fréquence',
-                        data: data,
-                        backgroundColor: backgroundColors,
-                        borderRadius: 4,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.parsed.y} occurrence(s)`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { stepSize: 1 },
-                            grid: { color: '#f1f5f9' }
-                        },
-                        x: {
-                            grid: { display: false }
-                        }
-                    }
-                }
+                let severityBadge = '';
+                if (severity === 'CRITICAL') severityBadge = `<span class="badge-severity" style="background: rgba(225,29,72,0.15); color: #FB7185; border: 1px solid rgba(225,29,72,0.3);">⚠️ Critique</span>`;
+                else severityBadge = `<span class="badge-severity" style="background: rgba(245,158,11,0.15); color: #FBBF24; border: 1px solid rgba(245,158,11,0.3);">⚡ Élevée</span>`;
+
+                let statusBadge = '';
+                if (decision === 'CONFIRMED_FRAUD') statusBadge = `<span style="color: #FB7185; font-weight: 600;">Fraude</span>`;
+                else if (decision === 'FALSE_POSITIVE') statusBadge = `<span style="color: #34D399; font-weight: 600;">Faux Positif</span>`;
+                else statusBadge = `<span style="color: var(--text-muted);">En attente</span>`;
+
+                html += `
+                    <tr class="cursor-pointer" onclick="openDetail('${txn.transaction_id}')">
+                        <td class="px-4 py-2 font-mono text-xs">${txn.display_id}</td>
+                        <td class="px-4 py-2">${txn.customer_name}</td>
+                        <td class="px-4 py-2 font-medium">${txn.amount?.toFixed(0) || 0} ${txn.currency || 'MAD'}</td>
+                        <td class="px-4 py-2 font-bold" style="color: ${txn.risk_score >= 66 ? '#FB7185' : '#94A3B8'};">${txn.risk_score || 0}</td>
+                        <td class="px-4 py-2">${severityBadge}</td>
+                        <td class="px-4 py-2">${statusBadge}</td>
+                        <td class="px-4 py-2">
+                            <button onclick="event.stopPropagation(); openDetail('${txn.transaction_id}')" 
+                                class="text-xs font-medium" style="color: #22D3EE;">
+                                <i class="fas fa-chevron-right"></i> Détail
+                            </button>
+                        </td>
+                    </tr>`;
             });
+            tbody.innerHTML = html;
         }
 
-        // ================================================================
-        // 10. CHART DES TOP RÈGLES (onglet KPIs)
-        // ================================================================
-        let rulesChartInstance = null;
-
-        function updateRulesChart() {
-            const ctx = document.getElementById('rulesChart').getContext('2d');
-            const ruleCount = {};
-            allTransactions.forEach(t => {
-                if (t.triggered_rules && Array.isArray(t.triggered_rules)) {
-                    t.triggered_rules.forEach(r => {
-                        const name = getRuleName(r);
-                        ruleCount[name] = (ruleCount[name] || 0) + 1;
-                    });
-                }
-            });
-            const sorted = Object.entries(ruleCount).sort((a, b) => b[1] - a[1]);
-            const labels = sorted.map(item => item[0]);
-            const data = sorted.map(item => item[1]);
-
-            if (rulesChartInstance) rulesChartInstance.destroy();
-
-            if (labels.length === 0) {
-                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                ctx.font = '14px sans-serif';
-                ctx.fillStyle = '#9ca3af';
-                ctx.textAlign = 'center';
-                ctx.fillText('Aucune règle déclenchée', ctx.canvas.width / 2, ctx.canvas.height / 2);
-                return;
-            }
-
-            const colors = ['#4f46e5', '#7c3aed', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ef4444', '#14b8a6',
-                '#f97316'
-            ];
-            const backgroundColors = labels.map((_, i) => colors[i % colors.length]);
-
-            rulesChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Fréquence de déclenchement',
-                        data: data,
-                        backgroundColor: backgroundColors,
-                        borderRadius: 4,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.parsed.y} occurrence(s)`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { stepSize: 1 },
-                            grid: { color: '#f1f5f9' }
-                        },
-                        x: {
-                            grid: { display: false }
-                        }
-                    }
-                }
-            });
-        }
-
-        // ================================================================
-        // 11. GRAPHIQUES (évolution + camembert)
-        // ================================================================
+        // 6. GRAPHIQUES (Ligne + Pie)
         function updateCharts() {
             updateChart('riskChartOverview');
-            updateChart('riskChartDetailed');
             updatePieChart('pieChartOverview');
-            updatePieChart('pieChartDetailed');
         }
 
         function updateChart(canvasId) {
             const ctx = document.getElementById(canvasId).getContext('2d');
-            const sorted = [...allTransactions].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            const labels = sorted.map(t => {
-                const d = new Date(t.timestamp);
-                return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
-            });
+            const sorted = [...allTransactions].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)).slice(-20);
+            const labels = sorted.map(t => { const d = new Date(t.timestamp); return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`; });
             const scores = sorted.map(t => t.risk_score || 0);
-            const displayData = scores.slice(-20);
-            const displayLabels = labels.slice(-20);
 
             if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient.addColorStop(0, 'rgba(34, 211, 238, 0.4)');
+            gradient.addColorStop(1, 'rgba(34, 211, 238, 0)');
 
             chartInstances[canvasId] = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: displayLabels,
+                    labels: labels,
                     datasets: [{
-                        label: 'Score de risque',
-                        data: displayData,
-                        borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                        tension: 0.2,
+                        label: 'Score',
+                        data: scores,
+                        borderColor: '#22D3EE',
+                        backgroundColor: gradient,
+                        tension: 0.3,
                         fill: true,
-                        pointBackgroundColor: displayData.map(s => s >= 66 ? '#ef4444' : '#4f46e5'),
+                        pointBackgroundColor: scores.map(s => s >= 66 ? '#E11D48' : '#22D3EE'),
+                        pointBorderColor: '#0A0F1F',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
                         borderWidth: 2
                     }]
                 },
@@ -1016,8 +536,15 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, max: 100, grid: { color: '#f1f5f9' } },
-                        x: { grid: { display: false } }
+                        y: {
+                            beginAtZero: true, max: 100,
+                            grid: { color: 'rgba(30, 42, 68, 0.5)' },
+                            ticks: { color: '#94A3B8' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94A3B8', font: { size: 10 } }
+                        }
                     }
                 }
             });
@@ -1025,313 +552,448 @@
 
         function updatePieChart(canvasId) {
             const ctx = document.getElementById(canvasId).getContext('2d');
-            const txns = allTransactions;
-            let low = 0,
-                medium = 0,
-                high = 0,
-                critical = 0;
-            txns.forEach(t => {
-                const score = t.risk_score || 0;
-                if (score >= 80) critical++;
-                else if (score >= 66) high++;
-                else if (score >= 33) medium++;
+            let low = 0, medium = 0, high = 0, critical = 0;
+            allTransactions.forEach(t => {
+                if (t.risk_score >= 85 || t.risk_level === 'CRITICAL') critical++;
+                else if (t.risk_score >= 66 || t.risk_level === 'HIGH') high++;
+                else if (t.risk_score >= 35 || t.risk_level === 'MEDIUM') medium++;
                 else low++;
             });
 
             if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
-
             chartInstances[canvasId] = new Chart(ctx, {
-                type: 'pie',
+                type: 'doughnut',
                 data: {
-                    labels: ['Faible (<33)', 'Moyen (33-65)', 'Élevé (66-79)', 'Critique (≥80)'],
+                    labels: ['Faible', 'Moyen', 'Élevé', 'Critique'],
                     datasets: [{
                         data: [low, medium, high, critical],
-                        backgroundColor: ['#22c55e', '#eab308', '#f97316', '#dc2626'],
-                        borderWidth: 0
+                        backgroundColor: ['#10B981', '#FBBF24', '#F59E0B', '#E11D48'],
+                        borderColor: '#0A0F1F',
+                        borderWidth: 3
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    cutout: '65%',
                     plugins: { legend: { display: false } }
                 }
             });
         }
 
-        // ================================================================
-        // 12. TABLEAU DES ALERTES
-        // ================================================================
-        function updateAlertsTable(suffix) {
-            const tbody = document.getElementById(`alerts-table-body-${suffix}`);
-            const alertTxns = allTransactions
-                .filter(t => (t.risk_score || 0) >= 66)
-                .slice(0, suffix === 'all' ? 50 : 20);
+        // ⭐ 7. NOUVEAU : HISTOGRAMME DES 12 RÈGLES DE SCORING
+        function updateRulesHistogram() {
+            const ctx = document.getElementById('rulesHistogram').getContext('2d');
+            
+            // Initialiser les compteurs pour chaque règle
+            const ruleCounts = {};
+            Object.keys(RULE_NAMES).forEach(code => ruleCounts[code] = 0);
 
-            if (alertTxns.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-gray-400 py-4">✅ Aucune alerte</td></tr>`;
-                return;
-            }
-
-            let html = '';
-            alertTxns.forEach(txn => {
-                const alert = allAlerts.find(a => a.transaction_id === txn.id);
-                const decision = alert?.analyst_decision || 'pending';
-                const severity = (txn.risk_score || 0) >= 80 ? 'CRITICAL' : 'HIGH';
-
-                let severityBadge = '';
-                if (severity === 'CRITICAL') severityBadge =
-                    `<span class="badge-severity bg-red-light">⚠️ Critique</span>`;
-                else severityBadge = `<span class="badge-severity bg-orange-light">⚡ Élevée</span>`;
-
-                let statusBadge = '';
-                if (decision === 'confirmed_fraud') statusBadge =
-                    `<span class="text-red-600 font-semibold">Fraude</span>`;
-                else if (decision === 'false_positive') statusBadge =
-                    `<span class="text-emerald-600 font-semibold">Faux Positif</span>`;
-                else statusBadge = `<span class="text-gray-400">En attente</span>`;
-
-                html += `
-                            <tr class="hover:bg-gray-50 cursor-pointer ${selectedAlertId === txn.id ? 'bg-indigo-50' : ''}" 
-                                data-txn-id="${txn.id}" onclick="openDetail('${txn.id}')">
-                                <td class="px-4 py-2 font-mono text-xs">${txn.id?.slice(0,8) || 'N/A'}</td>
-                                <td class="px-4 py-2">${txn.customer_name || 'Inconnu'}</td>
-                                <td class="px-4 py-2 font-medium">${txn.amount?.toFixed(0) || 0} MAD</td>
-                                <td class="px-4 py-2 font-bold ${(txn.risk_score || 0) >= 66 ? 'text-red-600' : 'text-gray-600'}">${txn.risk_score || 0}</td>
-                                <td class="px-4 py-2">${severityBadge}</td>
-                                <td class="px-4 py-2">${statusBadge}</td>
-                                <td class="px-4 py-2">
-                                    <button onclick="event.stopPropagation(); openDetail('${txn.id}')" 
-                                        class="text-indigo-600 hover:text-indigo-900 text-xs font-medium">
-                                        <i class="fas fa-chevron-right"></i> Détail
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
+            // Parcourir toutes les transactions et compter les règles déclenchées
+            allTransactions.forEach(t => {
+                const rules = t.triggered_rules || [];
+                rules.forEach(r => {
+                    let code = null;
+                    if (typeof r === 'object' && r !== null) {
+                        code = r.code;
+                    } else if (typeof r === 'string') {
+                        // Extraire le code du type "RG-01: Montant extrême"
+                        const match = r.match(/RG-\d+b?/);
+                        code = match ? match[0] : null;
+                    }
+                    if (code && ruleCounts.hasOwnProperty(code)) {
+                        ruleCounts[code]++;
+                    }
+                });
             });
-            tbody.innerHTML = html;
+
+            // Préparer les données pour le graphique
+            const ruleCodes = Object.keys(RULE_NAMES);
+            const labels = ruleCodes.map(code => `${code}\n${RULE_NAMES[code]}`);
+            const data = ruleCodes.map(code => ruleCounts[code]);
+
+            // Couleurs : pénalités en rouge/orange, mitigations en vert
+            const backgroundColors = ruleCodes.map(code => {
+                if (code === 'RG-11' || code === 'RG-12') return 'rgba(16, 185, 129, 0.8)'; // Vert pour bonus
+                const intensity = ruleCounts[code];
+                if (intensity === 0) return 'rgba(100, 116, 139, 0.3)';
+                return 'rgba(225, 29, 72, 0.8)'; // Rouge pour pénalités
+            });
+
+            const borderColors = ruleCodes.map(code => {
+                if (code === 'RG-11' || code === 'RG-12') return '#10B981';
+                return '#E11D48';
+            });
+
+            if (chartInstances['rulesHistogram']) chartInstances['rulesHistogram'].destroy();
+
+            chartInstances['rulesHistogram'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Déclenchements',
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        barPercentage: 0.7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0F172A',
+                            borderColor: '#22D3EE',
+                            borderWidth: 1,
+                            titleColor: '#22D3EE',
+                            bodyColor: '#E2E8F0',
+                            callbacks: {
+                                title: function(context) {
+                                    const code = ruleCodes[context[0].dataIndex];
+                                    return `${code} - ${RULE_NAMES[code]}`;
+                                },
+                                label: function(context) {
+                                    const count = context.parsed.y;
+                                    const type = (ruleCodes[context.dataIndex] === 'RG-11' || ruleCodes[context.dataIndex] === 'RG-12') ? 'Bonus' : 'Pénalité';
+                                    return `${type} • Déclenché ${count} fois`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { 
+                                stepSize: 1, 
+                                color: '#94A3B8',
+                                precision: 0
+                            },
+                            grid: { color: 'rgba(30, 42, 68, 0.5)' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { 
+                                color: '#94A3B8', 
+                                font: { size: 9 },
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
         }
 
-        function updateAlertCounts() {
-            const count = allTransactions.filter(t => (t.risk_score || 0) >= 66).length;
-            document.getElementById('alerts-count-ov').textContent = `${count} alerte(s)`;
-            document.getElementById('alerts-count-all').textContent = `${count} alerte(s)`;
-        }
-
-        // ================================================================
-        // 13. OUVERTURE DU MODAL
-        // ================================================================
+        // 8. MODAL ET ARBITRAGE
         function openDetail(txnId) {
-            const txn = allTransactions.find(t => t.id === txnId);
+            const txn = allTransactions.find(t => t.transaction_id === txnId);
             if (!txn) return;
             selectedAlertId = txnId;
-            updateAlertsTable('ov');
-            updateAlertsTable('all');
 
+            const modalContent = document.getElementById('modalContent');
+            modalContent.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2 text-sm">
+                        <p><span class="font-semibold" style="color: #22D3EE;">Client :</span> ${txn.customer_name}</p>
+                        <p><span class="font-semibold" style="color: #22D3EE;">Ville :</span> ${txn.home_city}</p>
+                        <p><span class="font-semibold" style="color: #22D3EE;">Canal :</span> ${txn.channel} (${txn.transaction_type || 'N/A'})</p>
+                        <p><span class="font-semibold" style="color: #22D3EE;">RIB Source :</span> ${txn.source_rib || 'N/A'}</p>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <p><span class="font-semibold" style="color: #22D3EE;">Montant :</span> ${txn.amount?.toFixed(0) || 0} ${txn.currency || 'MAD'}</p>
+                        <p><span class="font-semibold" style="color: #22D3EE;">Pays :</span> ${txn.location_country || 'MA'}</p>
+                        <p><span class="font-semibold" style="color: #22D3EE;">Score :</span> <span class="font-bold" style="color: #FB7185;">${txn.risk_score}</span></p>
+                        <p><span class="font-semibold" style="color: #22D3EE;">Statut :</span> ${txn.analyst_decision === 'CONFIRMED_FRAUD' ? 'Fraude confirmée' : txn.analyst_decision === 'FALSE_POSITIVE' ? 'Faux positif' : 'En attente'}</p>
+                    </div>
+                </div>
+                <div class="mt-4 p-4 rounded-lg" style="background: linear-gradient(135deg, rgba(124,58,237,0.1) 0%, rgba(6,182,212,0.1) 100%); border: 1px solid rgba(124,58,237,0.3);">
+                    <p class="font-semibold mb-1" style="color: #A78BFA;"><i class="fas fa-robot mr-1"></i> Diagnostic IA</p>
+                    <p class="text-sm italic" style="color: #E2E8F0;">${txn.ai_summary}</p>
+                    <p class="text-sm mt-2 font-medium" style="color: #22D3EE;">Action recommandée : ${txn.ai_action_recommendation}</p>
+                </div>`;
+
+            document.getElementById('detailModal').classList.remove('hidden');
             document.getElementById('modalBtnFraud').disabled = false;
             document.getElementById('modalBtnFalsePositive').disabled = false;
             document.getElementById('modalArbitrageMessage').textContent = '';
-            document.getElementById('modalArbitrageMessage').className = 'text-xs text-gray-500 self-center';
-
-            const modalContent = document.getElementById('modalContent');
-            const alert = allAlerts.find(a => a.transaction_id === txnId);
-            const decision = alert?.analyst_decision || 'pending';
-            const severity = (txn.risk_score || 0) >= 80 ? 'CRITIQUE' : 'ÉLEVÉE';
-
-            let iaSummary = 'Analyse non disponible';
-            let iaAction = 'Aucune action recommandée';
-            if (alert) {
-                iaSummary = alert.ai_summary || 'Diagnostic IA en cours de génération...';
-                iaAction = alert.ai_action_recommendation || 'Veuillez attendre l\'analyse complète.';
-            } else {
-                if (txn.risk_score >= 80) {
-                    iaSummary = '🔴 Opération très suspecte : montant inhabituel, pays étranger, heure creuse.';
-                    iaAction = 'Blocage immédiat recommandé.';
-                } else if (txn.risk_score >= 66) {
-                    iaSummary = '🟠 Comportement anormal : écart significatif par rapport aux habitudes du client.';
-                    iaAction = 'Vérification supplémentaire conseillée.';
-                } else {
-                    iaSummary = '🟢 Transaction normale, aucun signal d\'alerte.';
-                    iaAction = 'Aucune action requise.';
-                }
-            }
-
-            modalContent.innerHTML = `
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="space-y-2">
-                                <p><span class="font-semibold">Client :</span> ${txn.customer_name || 'N/A'}</p>
-                                <p><span class="font-semibold">Email :</span> ${txn.email || 'Non renseigné'}</p>
-                                <p><span class="font-semibold">Téléphone :</span> ${txn.phone || 'Non renseigné'}</p>
-                                <p><span class="font-semibold">IBAN :</span> ${txn.iban || 'Non disponible'}</p>
-                            </div>
-                            <div class="space-y-2">
-                                <p><span class="font-semibold">Montant :</span> ${txn.amount?.toFixed(0) || 0} MAD</p>
-                                <p><span class="font-semibold">Score :</span> <span class="font-bold ${txn.risk_score >= 66 ? 'text-red-600' : ''}">${txn.risk_score || 0}</span></p>
-                                <p><span class="font-semibold">Sévérité :</span> <span class="badge-severity ${severity === 'CRITIQUE' ? 'bg-red-light' : 'bg-orange-light'}">${severity}</span></p>
-                                <p><span class="font-semibold">Statut :</span> ${decision === 'confirmed_fraud' ? 'Fraude confirmée' : decision === 'false_positive' ? 'Faux positif' : 'En attente'}</p>
-                            </div>
-                        </div>
-                        <div class="mt-4 border-t pt-4 text-sm text-gray-600">
-                            <p><span class="font-semibold">Type :</span> ${txn.transaction_type || 'Inconnu'}</p>
-                            <p><span class="font-semibold">Pays :</span> ${txn.country || 'N/A'}</p>
-                            <p><span class="font-semibold">Date/heure :</span> ${new Date(txn.timestamp).toLocaleString('fr-FR')}</p>
-                        </div>
-                        <div class="mt-4 bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg border border-indigo-100">
-                            <div class="flex items-start gap-2">
-                                <span class="ia-badge mt-0.5"><i class="fas fa-robot mr-1"></i> IA</span>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-700">Diagnostic IA</p>
-                                    <p class="text-sm text-gray-800 italic">${iaSummary}</p>
-                                    <p class="text-sm font-semibold text-indigo-700 mt-2">Action recommandée : ${iaAction}</p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-            document.getElementById('detailModal').classList.remove('hidden');
-            document.getElementById('detailModal').classList.add('modal-open');
         }
 
-        // Fermeture du modal
         document.getElementById('closeModalBtn').addEventListener('click', () => {
             document.getElementById('detailModal').classList.add('hidden');
-            document.getElementById('detailModal').classList.remove('modal-open');
-        });
-        document.getElementById('detailModal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                document.getElementById('detailModal').classList.add('hidden');
-                document.getElementById('detailModal').classList.remove('modal-open');
-            }
         });
 
-        // ================================================================
-        // 14. ARBITRAGE (simulation locale)
-        // ================================================================
         function arbitrer(decision) {
-            if (!selectedAlertId) {
-                alert('Veuillez sélectionner une alerte.');
-                return;
-            }
+            if (!selectedAlertId) return;
             const alert = allAlerts.find(a => a.transaction_id === selectedAlertId);
-            if (!alert) {
-                document.getElementById('modalArbitrageMessage').textContent = 'Alerte non trouvée.';
-                return;
-            }
-
-            alert.analyst_decision = decision;
-            const msg = document.getElementById('modalArbitrageMessage');
-            msg.textContent = `✅ Décision "${decision === 'confirmed_fraud' ? 'Fraude confirmée' : 'Faux positif'}" enregistrée.`;
-            msg.className = 'text-xs text-emerald-600 self-center font-medium';
-
-            document.getElementById('modalBtnFraud').disabled = true;
-            document.getElementById('modalBtnFalsePositive').disabled = true;
-
-            updateAlertsTable('ov');
-            updateAlertsTable('all');
-            updateKPIsOverview();
-            updateKPIsDetailed();
-            updateRulesFrequency();
-            updateRulesChartOverview();
-            updateRulesChart();
-
-            const txn = allTransactions.find(t => t.id === selectedAlertId);
-            if (txn) {
-                const statutSpan = document.querySelector('#modalContent .grid .space-y-2:last-child p:last-child');
-                if (statutSpan) {
-                    const decisionLabel = decision === 'confirmed_fraud' ? 'Fraude confirmée' : 'Faux positif';
-                    statutSpan.innerHTML = `<span class="font-semibold">Statut :</span> ${decisionLabel}`;
-                }
+            if (alert) {
+                alert.analyst_decision = decision;
+                document.getElementById('modalArbitrageMessage').textContent = `✅ Décision enregistrée.`;
+                document.getElementById('modalBtnFraud').disabled = true;
+                document.getElementById('modalBtnFalsePositive').disabled = true;
+                updateAlertsTable('ov');
+                updateAlertsTable('all');
+                updateKPIsOverview();
+                updateRulesHistogram();
             }
         }
 
-        document.getElementById('modalBtnFraud').addEventListener('click', () => arbitrer('confirmed_fraud'));
-        document.getElementById('modalBtnFalsePositive').addEventListener('click', () => arbitrer('false_positive'));
+        document.getElementById('modalBtnFraud').addEventListener('click', () => arbitrer('CONFIRMED_FRAUD'));
+        document.getElementById('modalBtnFalsePositive').addEventListener('click', () => arbitrer('FALSE_POSITIVE'));
 
-        // ================================================================
-        // 15. RECHERCHE CLIENT
-        // ================================================================
-        document.getElementById('searchBtn').addEventListener('click', () => {
-            const query = document.getElementById('searchInput').value.trim().toLowerCase();
-            const resultsDiv = document.getElementById('searchResults');
-
-            if (!query) {
-                resultsDiv.innerHTML = '<p class="italic text-gray-400">Veuillez entrer un ID de transaction ou un nom de client.</p>';
-                return;
-            }
-
-            const found = allTransactions.filter(t =>
-                t.id.toLowerCase().includes(query) ||
-                (t.customer_name && t.customer_name.toLowerCase().includes(query))
-            );
-
-            if (found.length === 0) {
-                resultsDiv.innerHTML = '<p class="text-gray-500">Aucune transaction trouvée pour cette recherche.</p>';
-                return;
-            }
-
-            let html = `<div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead><tr class="bg-gray-50">
-                            <th class="px-3 py-2 text-left font-medium text-gray-500">ID</th>
-                            <th class="px-3 py-2 text-left font-medium text-gray-500">Client</th>
-                            <th class="px-3 py-2 text-left font-medium text-gray-500">Montant</th>
-                            <th class="px-3 py-2 text-left font-medium text-gray-500">Score</th>
-                            <th class="px-3 py-2 text-left font-medium text-gray-500">Statut</th>
-                            <th class="px-3 py-2 text-left font-medium text-gray-500">Action</th>
-                        </tr></thead><tbody>`;
-            found.forEach(t => {
-                const alert = allAlerts.find(a => a.transaction_id === t.id);
-                const status = alert?.analyst_decision || 'pending';
-                const statusLabel = status === 'confirmed_fraud' ? 'Fraude' :
-                    status === 'false_positive' ? 'Faux Positif' : 'En attente';
-                html += `<tr class="hover:bg-gray-50 cursor-pointer" onclick="openDetail('${t.id}')">
-                            <td class="px-3 py-2 font-mono text-xs">${t.id}</td>
-                            <td class="px-3 py-2">${t.customer_name || 'Inconnu'}</td>
-                            <td class="px-3 py-2 font-medium">${t.amount?.toFixed(0) || 0} MAD</td>
-                            <td class="px-3 py-2 font-bold ${t.risk_score >= 66 ? 'text-red-600' : ''}">${t.risk_score || 0}</td>
-                            <td class="px-3 py-2">${statusLabel}</td>
-                            <td class="px-3 py-2"><button onclick="event.stopPropagation(); openDetail('${t.id}')" class="text-indigo-600 hover:text-indigo-900 text-xs font-medium"><i class="fas fa-chevron-right"></i> Détail</button></td>
-                        </tr>`;
-            });
-            html += '</tbody></table></div>';
-            resultsDiv.innerHTML = html;
-        });
-
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') document.getElementById('searchBtn').click();
-        });
-
-        // ================================================================
-        // 16. GESTION DES ONGLETS
-        // ================================================================
+        // 9. NAVIGATION & RECHERCHE
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 btn.classList.add('active');
-                const tabId = btn.dataset.tab;
-                document.getElementById(`tab-${tabId}`).classList.add('active');
-                if (tabId === 'charts' || tabId === 'overview') {
-                    setTimeout(() => {
-                        Object.values(chartInstances).forEach(chart => {
-                            if (chart && typeof chart.resize === 'function') chart.resize();
-                        });
-                        if (rulesChartOverviewInstance && typeof rulesChartOverviewInstance.resize ===
-                            'function') rulesChartOverviewInstance.resize();
-                    }, 100);
-                }
-                if (tabId === 'kpis') {
-                    setTimeout(() => {
-                        if (rulesChartInstance && typeof rulesChartInstance.resize === 'function')
-                            rulesChartInstance.resize();
-                    }, 100);
-                }
+                document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+                setTimeout(() => {
+                    Object.values(chartInstances).forEach(c => { if (c && c.resize) c.resize(); });
+                }, 100);
             });
         });
 
-        // ================================================================
-        // 17. INIT
-        // ================================================================
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const resultsDiv = document.getElementById('searchResults');
+            if (!query) return;
+            const found = allTransactions.filter(t => 
+                t.transaction_id.toLowerCase().includes(query) || 
+                (t.customer_name && t.customer_name.toLowerCase().includes(query))
+            );
+            if (found.length === 0) {
+                resultsDiv.innerHTML = '<p style="color: var(--text-muted);">Aucun résultat.</p>';
+                return;
+            }
+            let html = `<table class="min-w-full text-sm">`;
+            found.forEach(t => {
+                html += `<tr class="cursor-pointer" onclick="openDetail('${t.transaction_id}')">
+                    <td class="px-3 py-2 font-mono" style="color: #22D3EE;">${t.transaction_id}</td>
+                    <td class="px-3 py-2">${t.customer_name}</td>
+                    <td class="px-3 py-2">${t.amount} ${t.currency}</td>
+                </tr>`;
+            });
+            html += '</table>';
+            resultsDiv.innerHTML = html;
+        });
+
+        // 10. GÉNÉRATION DE RAPPORTS PDF
+        function drawPdfHeader(doc, title, subtitle) {
+            doc.setFillColor(10, 15, 31);
+            doc.rect(0, 0, 210, 25, 'F');
+            doc.setFillColor(6, 182, 212);
+            doc.rect(0, 24, 210, 1, 'F');
+            doc.setTextColor(34, 211, 238);
+            doc.setFontSize(18);
+            doc.setFont("helvetica", "bold");
+            doc.text("BankShield AI", 14, 12);
+            doc.setFontSize(10);
+            doc.setTextColor(200, 200, 200);
+            doc.setFont("helvetica", "normal");
+            doc.text(title, 14, 19);
+            doc.setFontSize(9);
+            doc.text(subtitle, 196, 12, { align: 'right' });
+            doc.text(new Date().toLocaleString('fr-FR'), 196, 19, { align: 'right' });
+            doc.setTextColor(0, 0, 0);
+        }
+
+        function generateGlobalReport() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            drawPdfHeader(doc, "Rapport Global des Alertes", "Confidentiel - Usage interne");
+
+            const clientMap = {};
+            allTransactions.forEach(t => {
+                if (!clientMap[t.customer_id]) {
+                    clientMap[t.customer_id] = {
+                        customer_id: t.customer_id,
+                        name: t.customer_name || 'Inconnu',
+                        city: t.home_city || 'N/A',
+                        transactions: [],
+                        alerts: []
+                    };
+                }
+                clientMap[t.customer_id].transactions.push(t);
+                if ((t.risk_score || 0) >= 66) {
+                    clientMap[t.customer_id].alerts.push(t);
+                }
+            });
+
+            const totalClients = Object.keys(clientMap).length;
+            const totalAlerts = allTransactions.filter(t => (t.risk_score || 0) >= 66).length;
+            const totalFraud = allAlerts.filter(a => a.analyst_decision === 'CONFIRMED_FRAUD').length;
+            const totalFP = allAlerts.filter(a => a.analyst_decision === 'FALSE_POSITIVE').length;
+
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "bold");
+            doc.text("Synthèse Générale", 14, 35);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.text(`Clients analysés : ${totalClients}`, 14, 42);
+            doc.text(`Alertes totales : ${totalAlerts}`, 80, 42);
+            doc.text(`Fraudes confirmées : ${totalFraud}`, 145, 42);
+            doc.text(`Faux positifs : ${totalFP}`, 14, 48);
+            doc.text(`Taux de faux positifs : ${totalAlerts > 0 ? ((totalFP / totalAlerts) * 100).toFixed(1) : 0}%`, 80, 48);
+
+            const rows = Object.values(clientMap).map(c => {
+                const maxScore = c.alerts.length > 0 ? Math.max(...c.alerts.map(a => a.risk_score || 0)) : 0;
+                const fraudCount = c.alerts.filter(a => a.analyst_decision === 'CONFIRMED_FRAUD').length;
+                const fpCount = c.alerts.filter(a => a.analyst_decision === 'FALSE_POSITIVE').length;
+                const pendingCount = c.alerts.filter(a => a.analyst_decision === 'PENDING').length;
+                const montantRisque = c.alerts.reduce((s, a) => s + (a.amount || 0), 0);
+                return [c.customer_id, c.name, c.city, c.transactions.length, c.alerts.length, maxScore, fraudCount, fpCount, pendingCount, montantRisque.toFixed(0) + ' MAD'];
+            });
+
+            doc.autoTable({
+                startY: 55,
+                head: [['ID Client', 'Nom', 'Ville', 'Txns', 'Alertes', 'Score Max', 'Fraudes', 'Faux Pos.', 'En Attente', 'Montant Risque']],
+                body: rows,
+                theme: 'grid',
+                headStyles: { fillColor: [6, 182, 212], fontSize: 8, textColor: [255, 255, 255] },
+                bodyStyles: { fontSize: 8 }
+            });
+
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+                doc.text(`BankShield AI - Rapport Global - Page ${i}/${pageCount}`, 105, 290, { align: 'center' });
+            }
+
+            doc.save(`BankShield_Rapport_Global_${new Date().toISOString().slice(0, 10)}.pdf`);
+        }
+
+        function generateClientReport(customerId) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const clientTxns = allTransactions.filter(t => t.customer_id === customerId);
+            if (clientTxns.length === 0) {
+                alert('Aucune donnée pour ce client.');
+                return;
+            }
+
+            const clientInfo = clientTxns[0];
+            const clientAlerts = clientTxns.filter(t => (t.risk_score || 0) >= 66);
+
+            drawPdfHeader(doc, `Rapport Client : ${clientInfo.customer_name}`, "Confidentiel - AML");
+
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "bold");
+            doc.text("Informations Client", 14, 35);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.text(`ID : ${customerId}`, 14, 42);
+            doc.text(`Nom : ${clientInfo.customer_name}`, 14, 48);
+            doc.text(`Ville : ${clientInfo.home_city}`, 14, 54);
+            doc.text(`Téléphone : ${clientInfo.phone}`, 100, 42);
+
+            const maxScore = clientAlerts.length > 0 ? Math.max(...clientAlerts.map(a => a.risk_score || 0)) : 0;
+            const totalAmountAtRisk = clientAlerts.reduce((s, a) => s + (a.amount || 0), 0);
+            const fraudCount = clientAlerts.filter(a => a.analyst_decision === 'CONFIRMED_FRAUD').length;
+            const fpCount = clientAlerts.filter(a => a.analyst_decision === 'FALSE_POSITIVE').length;
+
+            doc.setFont("helvetica", "bold");
+            doc.text("Synthèse", 14, 66);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Transactions totales : ${clientTxns.length}`, 14, 73);
+            doc.text(`Alertes : ${clientAlerts.length}`, 80, 73);
+            doc.text(`Score max : ${maxScore}`, 145, 73);
+            doc.text(`Montant sous risque : ${totalAmountAtRisk.toFixed(0)} MAD`, 14, 79);
+            doc.text(`Fraudes : ${fraudCount}`, 100, 79);
+            doc.text(`Faux positifs : ${fpCount}`, 145, 79);
+
+            doc.setFont("helvetica", "bold");
+            doc.text("Transactions Suspectes", 14, 92);
+
+            const txnRows = clientAlerts.map(t => {
+                const date = new Date(t.timestamp).toLocaleString('fr-FR').slice(0, 16);
+                const decisionLabel = t.analyst_decision === 'CONFIRMED_FRAUD' ? 'FRAUDE' : t.analyst_decision === 'FALSE_POSITIVE' ? 'Faux Positif' : 'En attente';
+                return [t.transaction_id || 'N/A', date, t.amount?.toFixed(0) + ' ' + (t.currency || 'MAD'), t.channel || 'N/A', t.risk_score || 0, t.severity_db || 'HIGH', decisionLabel];
+            });
+
+            doc.autoTable({
+                startY: 97,
+                head: [['ID Transaction', 'Date', 'Montant', 'Canal', 'Score', 'Sévérité', 'Décision']],
+                body: txnRows.length > 0 ? txnRows : [['—', '—', '—', '—', '—', '—', 'Aucune alerte']],
+                theme: 'grid',
+                headStyles: { fillColor: [225, 29, 72], fontSize: 9, textColor: [255, 255, 255] },
+                bodyStyles: { fontSize: 8 }
+            });
+
+            let yPos = doc.lastAutoTable.finalY + 15;
+
+            clientAlerts.forEach((t, idx) => {
+                if (yPos > 240) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+
+                doc.setFillColor(240, 245, 255);
+                doc.rect(14, yPos - 5, 182, 45, 'F');
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(10);
+                doc.setTextColor(220, 38, 38);
+                doc.text(`Alerte #${idx + 1} - ${t.transaction_id}`, 18, yPos + 2);
+
+                doc.setTextColor(0, 0, 0);
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(9);
+                doc.text(`Montant : ${t.amount?.toFixed(0)} ${t.currency || 'MAD'} | Canal : ${t.channel} | Pays : ${t.location_country || 'MA'}`, 18, yPos + 9);
+                doc.text(`Score : ${t.risk_score} | Sévérité : ${t.severity_db || 'HIGH'}`, 18, yPos + 15);
+
+                doc.setFont("helvetica", "italic");
+                const aiSummary = t.ai_summary || 'Analyse IA non disponible.';
+                const splitSummary = doc.splitTextToSize(`Diagnostic IA : ${aiSummary}`, 175);
+                doc.text(splitSummary, 18, yPos + 22);
+
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(79, 70, 229);
+                const actionText = doc.splitTextToSize(`Action recommandée : ${t.ai_action_recommendation || 'N/A'}`, 175);
+                doc.text(actionText, 18, yPos + 30);
+
+                if (t.triggered_rules && t.triggered_rules.length > 0) {
+                    doc.setFont("helvetica", "normal");
+                    doc.setTextColor(100, 100, 100);
+                    doc.setFontSize(8);
+                    const rulesText = t.triggered_rules.map(r => typeof r === 'object' ? `${r.code}: ${r.name}` : String(r)).join(' | ');
+                    const splitRules = doc.splitTextToSize(`Règles : ${rulesText}`, 175);
+                    doc.text(splitRules, 18, yPos + 38);
+                }
+
+                doc.setTextColor(0, 0, 0);
+                yPos += 52;
+            });
+
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+                doc.text(`BankShield AI - Rapport Client ${customerId} - Page ${i}/${pageCount}`, 105, 290, { align: 'center' });
+            }
+
+            doc.save(`BankShield_Rapport_${clientInfo.customer_name.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`);
+        }
+
+        document.getElementById('btnGlobalReport').addEventListener('click', generateGlobalReport);
+
+        document.getElementById('modalBtnReport').addEventListener('click', () => {
+            if (selectedAlertId) {
+                const txn = allTransactions.find(t => t.transaction_id === selectedAlertId);
+                if (txn) generateClientReport(txn.customer_id);
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', loadData);
     </script>
-
 </body>
 </html>
