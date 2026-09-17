@@ -1,24 +1,56 @@
-# BankShield AI – Détection d'Opérations Bancaires Inhabituelles
+# 🛡️ BankShield AI – Détection d'Opérations Bancaires Inhabituelles
 
 **Smart Automation Challenge – Sujet 6**  
-**Équipe :** Jihane Majdoul, SALMA BOUKHLAL , Yassine Hadrane ,YOUSSEF AIT BAKRIM ,ABDELOUAHED AHNID
+**Détection de fraude bancaire en temps réel au Maroc**
+
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%2015-green)](https://supabase.com)
+[![Realtime](https://img.shields.io/badge/Realtime-WebSocket-blue)]()
+[![License](https://img.shields.io/badge/License-MIT-yellow)]()
+
+---
+
+## 👥 Équipe
+
+| Membre | Rôle |
+|--------|------|
+| **Jihane Majdoul** 
+| **Salma Boukhlal** 
+| **Yassine Hadrane** 
+| **Youssef Ait Bakrim** 
+| **Abdelouahed Ahnid** 
+
+**Encadrement** : M. Achmi Gnae Diby
+
+---
+
 ## 📌 Description
-BankShield AI est un système de détection en temps réel des opérations bancaires suspectes, combinant un moteur de scoring à 12 règles et un Agent IA AML explicatif.
+
+BankShield AI est un système de **détection en temps réel des opérations bancaires suspectes**, combinant :
+
+- 🎯 **Un moteur de scoring à 12 règles** (temps réel, < 200 ms)
+- 🤖 **Un Agent IA AML** (Google Gemini) pour le diagnostic bilingue FR/AR
+- 📊 **Un dashboard temps réel** (Supabase Realtime + WebSocket)
+- 🔔 **Des notifications Slack** instantanées pour les alertes critiques
+- 🗄️ **Une base de données Supabase** (PostgreSQL 15) avec 4 tables normalisées
+
+---
+
+## 🎯 Contexte
+
+Sous l'impulsion de **Bank Al-Maghrib (BAM)**, le paysage financier marocain vit une digitalisation accélérée :
+
+- **+150 millions de transactions/an** via le CMI (Centre Monétique Interbancaire)
+- **+30% de croissance annuelle** des paiements digitaux
+- **85-90% de faux positifs** avec les systèmes à règles statiques
+- **24 à 48h de délai** de détection → fonds déjà évaporés
+
+**BankShield AI** répond à ce problème avec une approche temps réel (< 3 secondes) et une réduction drastique des faux positifs (< 15%).
+
+---
 
 ## 🏗️ Architecture
-- **Service 1 (Synchrone) :** Scoring 12 règles (< 200ms)
-- **Service 2 (Asynchrone) :** Agent IA AML + Alerte Slack + Dashboard
 
-## 📊 Fonctionnalités
-- 7 KPIs officiels
-- Graphiques d'évolution et répartition des risques
-- Tableau des alertes avec arbitrage analyste
-- Diagnostic IA dans le modal de détails
 
-## 🚀 Lancer le Dashboard
-Ouvrir `dashboard/index.html` dans un navigateur.
+🔗 Liens Utiles
+🌐 Dashboard en ligne : bankshield-dashboard.vercel.app
 
-## 🔗 Liens utiles
-- [Présentation Canva](lien)
-- [Vidéo démo](lien)
-- [Poster](lien)
