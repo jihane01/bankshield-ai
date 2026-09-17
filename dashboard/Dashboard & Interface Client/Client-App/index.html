@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BankShield Mobile Simulator — Démo Jury & Test</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { background-color: #070B14; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .phone-case { width: 390px; height: 844px; border: 11px solid #1E293B; border-radius: 46px; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.12); }
+    .notch { width: 130px; height: 24px; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-3 text-slate-100">
+
+    <div class="text-center mb-3">
+    <div class="inline-flex items-center gap-2 bg-sky-950/80 border border-sky-800 text-sky-300 text-xs px-3 py-1 rounded-full font-mono mb-1.5 shadow-md">
+      <i class="fa-solid fa-mobile-screen"></i> BankShield Pay — Simulateur Client (Smart Automation Challenge)
+    </div>
+    <h1 class="text-xl font-black tracking-tight text-white">Application Client Mobile</h1>
+    <p class="text-xs text-slate-400">Générateur et Injecteur de Transactions</p>
+  </div>
+
+    <div class="phone-case bg-slate-950 relative flex flex-col overflow-hidden">
+    
+        <div class="h-9 bg-slate-900/90 flex items-center justify-between px-6 z-20">
+      <span class="text-[11px] font-semibold text-slate-300 font-mono" id="clock">11:00</span>
+      <div class="notch bg-slate-950 mx-auto absolute left-1/2 -translate-x-1/2 top-0 flex items-center justify-center">
+        <div class="w-2.5 h-2.5 bg-slate-900 rounded-full mr-2"></div>
+        <div class="w-2 h-2 bg-blue-900/60 rounded-full"></div>
+      </div>
+      <div class="flex items-center gap-1.5 text-[11px] text-slate-300">
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+      </div>
+    </div>
+
+        <div class="flex-1 overflow-y-auto px-4 py-2.5 space-y-2.5">
+
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5">
+        <div class="flex justify-between items-center mb-1.5 px-0.5">
+          <span class="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Destination de l'Envoi</span>
+          <span id="destinationBadge" class="text-[9px] font-mono text-emerald-400 font-bold">Base de Données Seule</span>
+        </div>
+        <div class="grid grid-cols-3 gap-1.5 bg-slate-950 p-1 rounded-lg border border-slate-800">
+          <button type="button" id="btnMode-db" onclick="changerMode('db')" class="py-1 px-2 rounded-md text-[10px] font-bold transition bg-emerald-600 text-white shadow flex items-center justify-center gap-1">
+            <i class="fa-solid fa-database text-[9px]"></i> Base
+          </button>
+          <button type="button" id="btnMode-webhook" onclick="changerMode('webhook')" class="py-1 px-2 rounded-md text-[10px] font-bold transition text-slate-400 hover:text-white flex items-center justify-center gap-1">
+            <i class="fa-solid fa-bolt text-[9px]"></i> Webhook
+          </button>
+          <button type="button" id="btnMode-dual" onclick="changerMode('dual')" class="py-1 px-2 rounded-md text-[10px] font-bold transition text-slate-400 hover:text-white flex items-center justify-center gap-1">
+            <i class="fa-solid fa-arrows-split-up-and-left text-[9px]"></i> Les Deux
+          </button>
+        </div>
+      </div>
+
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-2.5">
+        <div class="flex justify-between items-center mb-1">
+          <label class="text-[9px] uppercase font-bold tracking-wider text-slate-400 block">Compte Client Actif</label>
+          <div class="flex items-center gap-1">
+            <span id="syncBadge" class="text-[8px] font-mono text-emerald-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+              <span id="syncText">10 Profils Supabase</span>
+            </span>
+            <button type="button" onclick="fetchCustomersFromSupabase(true)" title="Rafraîchir depuis Supabase" class="text-slate-400 hover:text-sky-400 text-[9px] ml-1 p-0.5 transition">
+              <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+          </div>
+        </div>
+        <select id="profileSelect" onchange="switchProfile()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-white focus:outline-none focus:border-sky-500">
+          <option value="CUST-1001">👩 Fatima Zahra (Sarah) Alami (Casablanca)</option>
+          <option value="CUST-1002">👨 Mehdi Benjelloun (Rabat)</option>
+          <option value="CUST-1003">🧔 Karim Idrissi (Tanger)</option>
+          <option value="CUST-1004">👩 Yasmine Tazi (Casablanca)</option>
+          <option value="CUST-1005">👨 Omar Berrada (Fès)</option>
+          <option value="CUST-1006">👩 Salma Chraibi (Marrakech)</option>
+          <option value="CUST-1007">👨 Reda El Amrani (Agadir)</option>
+          <option value="CUST-1008">👩 Houda Mansouri (Rabat)</option>
+          <option value="CUST-1009">👨 Amine Filali (Casablanca)</option>
+          <option value="CUST-1010">👩 Nadia Kabbaj (Tanger)</option>
+        </select>
+
+                <div class="mt-2 bg-gradient-to-r from-sky-900 via-indigo-950 to-slate-900 border border-sky-800/40 rounded-xl p-3 shadow-lg relative overflow-hidden space-y-2">
+          <div class="flex justify-between items-start">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-4 bg-gradient-to-tr from-amber-300 via-amber-400 to-amber-600 rounded-sm border border-amber-200/40 shadow-inner flex items-center justify-center">
+                <div class="w-4 h-2.5 border border-amber-900/40 rounded-xs grid grid-cols-2 gap-0.5 opacity-70"></div>
+              </div>
+              <i class="fa-solid fa-wifi rotate-90 text-slate-400 text-[10px]"></i>
+            </div>
+            <div class="text-right flex items-center gap-1.5">
+              <span id="profileCustIdBadge" class="bg-sky-500/30 text-sky-300 font-mono px-1.5 py-0.5 rounded text-[10px] font-bold border border-sky-400/40">CUST-1001</span>
+              <span class="text-[8px] font-bold text-sky-300/80 font-mono tracking-widest hidden sm:inline">BANKSHIELD</span>
+              <i class="fa-brands fa-cc-visa text-xl text-sky-400"></i>
+            </div>
+          </div>
+
+          <div>
+            <p id="profileHolder" class="text-xs font-bold text-white tracking-wide font-sans">Fatima Zahra (Sarah) Alami</p>
+            <div class="flex justify-between text-[8px] text-sky-300/80 font-mono mt-0.5">
+              <span id="profileCin">CIN: BE849201</span>
+              <span id="profilePhone"><i class="fa-solid fa-phone text-[7px]"></i> +212 661-892341</span>
+            </div>
+            <p id="profileRib" class="text-[9px] font-mono text-sky-200 tracking-wider mt-0.5">RIB: 2307 8000 0123 4567 8901 2345</p>
+          </div>
+
+          <div class="flex justify-between items-baseline pt-1 border-t border-sky-800/30">
+            <div>
+              <p class="text-[7px] text-sky-300/70 font-mono uppercase tracking-wider">Solde Disponible</p>
+              <p class="text-base font-black text-white font-mono tracking-tight" id="profileBalance">28 450,00 MAD</p>
+            </div>
+            <div class="text-right">
+              <p class="text-[7px] text-amber-300/70 font-mono uppercase tracking-wider">Plafond Jour</p>
+              <p class="text-[11px] font-bold text-amber-300 font-mono" id="profileLimitText">10 000 MAD</p>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center text-[8px] font-mono text-slate-300/90 pt-1 border-t border-sky-800/30">
+            <span id="profileDevice" class="truncate max-w-[160px]"><i class="fa-solid fa-mobile-screen text-[8px] mr-1 text-sky-400"></i> <span id="profileDeviceText">iPhone 14 Pro (iOS 17.4)</span></span>
+            <span id="profileCity"><i class="fa-solid fa-location-dot text-[8px] mr-1 text-rose-400"></i> <span id="profileCityText">Casablanca, MA</span></span>
+          </div>
+
+          <div class="flex justify-between items-center text-[8px] font-mono text-slate-300/70 pt-0.5">
+            <span id="profileBeneficiary" class="truncate max-w-[190px]"><i class="fa-solid fa-user-shield text-[8px] mr-1 text-emerald-400"></i> <span id="profileBeneficiaryText">Loyer Maarif Casa</span></span>
+            <span id="profileAvgSpend"><i class="fa-solid fa-chart-line text-[8px] mr-1 text-sky-400"></i> <span id="profileAvgSpendText">Moy: 350 MAD</span></span>
+          </div>
+        </div>
+      </div>
+
+            <div>
+        <label class="text-[9px] uppercase font-bold tracking-wider text-slate-400 mb-1 block">Scénarios Démo Jury (1 Clic)</label>
+        <div class="grid grid-cols-3 gap-1.5 text-left text-[10px]" id="scenarioBtnGroup">
+          <button id="scen-NORMAL" onclick="loadScenario('NORMAL')" class="scenario-btn ring-2 ring-sky-400 bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-800/60 text-emerald-300 p-1.5 rounded-xl transition flex flex-col">
+            <span class="font-bold">🛒 1. Marjane</span>
+            <span class="text-[8px] text-emerald-400">350 MAD • Normal</span>
+          </button>
+          <button id="scen-FRAUD" onclick="loadScenario('FRAUD')" class="scenario-btn bg-red-950/40 hover:bg-red-900/60 border border-red-800/60 text-red-300 p-1.5 rounded-xl transition flex flex-col">
+            <span class="font-bold">🚨 2. Dakar Nuit</span>
+            <span class="text-[8px] text-red-400">22k MAD • Bloqué</span>
+          </button>
+          <button id="scen-FP" onclick="loadScenario('FP')" class="scenario-btn bg-sky-950/40 hover:bg-sky-900/60 border border-sky-800/60 text-sky-300 p-1.5 rounded-xl transition flex flex-col">
+            <span class="font-bold">📺 3. TV + PIN</span>
+            <span class="text-[8px] text-sky-400">12k MAD • Atténué</span>
+          </button>
+          <button id="scen-VELOCITY" onclick="loadScenario('VELOCITY')" class="scenario-btn bg-amber-950/40 hover:bg-amber-900/60 border border-amber-800/60 text-amber-300 p-1.5 rounded-xl transition flex flex-col">
+            <span class="font-bold">⚡ 4. Rafale 10m</span>
+            <span class="text-[8px] text-amber-400">4.5k • Vélocité</span>
+          </button>
+          <button id="scen-CRYPTO" onclick="loadScenario('CRYPTO')" class="scenario-btn bg-purple-950/40 hover:bg-purple-900/60 border border-purple-800/60 text-purple-300 p-1.5 rounded-xl transition flex flex-col">
+            <span class="font-bold">🪙 5. Binance P2P</span>
+            <span class="text-[8px] text-purple-400">18.5k • Crypto</span>
+          </button>
+          <button id="scen-RESET" onclick="loadScenario('RESET')" class="scenario-btn bg-slate-800/70 hover:bg-slate-700/70 border border-slate-700 text-slate-300 p-1.5 rounded-xl transition flex flex-col items-center justify-center">
+            <span class="font-bold"><i class="fa-solid fa-rotate-left"></i> Reset</span>
+            <span class="text-[8px] text-slate-400">Par défaut</span>
+          </button>
+        </div>
+      </div>
+
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-2.5 space-y-2 text-xs">
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">ID de Transaction (Format TRX-APP-...)</label>
+            <button type="button" onclick="regenerateTxnId()" class="text-[9px] text-sky-400 hover:text-sky-300 font-mono flex items-center gap-1">
+              <i class="fa-solid fa-arrows-rotate text-[8px]"></i> Régénérer
+            </button>
+          </div>
+          <input type="text" id="txnIdInput" value="" placeholder="Généré dynamiquement..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-white font-mono text-[11px] font-bold text-sky-300 tracking-wide focus:outline-none focus:border-sky-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[9px] text-slate-400">Montant (MAD)</label>
+            <input type="number" id="txnAmount" value="350" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-white font-mono font-bold">
+          </div>
+          <div>
+            <label class="text-[9px] text-slate-400">Type Transaction</label>
+            <select id="txnType" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-white text-[10px]">
+              <option value="CARD_PAYMENT">Paiement Carte</option>
+              <option value="TRANSFER">Virement Bancaire</option>
+              <option value="ATM_WITHDRAWAL">Retrait GAB</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[9px] text-slate-400">Ville & Pays</label>
+            <div class="flex gap-1">
+              <input type="text" id="txnCity" value="Casablanca" class="w-2/3 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-white font-mono text-[10px]">
+              <input type="text" id="txnCountry" value="MA" class="w-1/3 bg-slate-800 border border-slate-700 rounded-lg px-1 py-1 text-white font-mono text-center text-[10px]">
+            </div>
+          </div>
+          <div>
+            <label class="text-[9px] text-slate-400">PIN Saisi ?</label>
+            <select id="txnPin" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-white text-[10px]">
+              <option value="false">Non (Sans contact / En ligne)</option>
+              <option value="true">Oui (Puce + PIN physique)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[9px] text-slate-400">Bénéficiaire & Marchand</label>
+          <input type="text" id="txnBeneficiary" value="Marjane Market" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-white text-[11px]">
+        </div>
+      </div>
+
+            <button onclick="sendTransaction()" id="btnSend" class="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-sky-950/50 flex items-center justify-center gap-2 transition active:scale-95 text-xs">
+        <i class="fa-solid fa-paper-plane"></i> Transmettre la Transaction
+      </button>
+
+            <div id="resultBox" class="hidden bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs font-mono space-y-1">
+        <div class="flex justify-between items-center text-[10px]">
+          <span class="font-bold" id="resStatus">STATUS: 200 OK</span>
+          <span class="text-sky-400 font-mono" id="resLatency">140 ms</span>
+        </div>
+        <p class="text-[10px] text-slate-300 break-all" id="resMsg"></p>
+      </div>
+
+            <details id="detailsPayload" class="bg-slate-900/90 border border-slate-800 rounded-xl text-[10px] text-slate-400 p-2 cursor-pointer transition">
+        <summary class="font-bold text-sky-400 flex items-center justify-between select-none">
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-code"></i> Inspecter le Payload JSON</span>
+          <span class="text-[8px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">Format Postgres SELECT</span>
+        </summary>
+        <pre id="payloadPreview" class="mt-2 p-2 bg-slate-950 rounded text-[9px] font-mono text-emerald-400 overflow-x-auto max-h-40 border border-slate-800 select-all whitespace-pre"></pre>
+      </details>
+
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 space-y-2">
+        <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          <span><i class="fa-solid fa-clock-rotate-left mr-1 text-sky-400"></i> Dernières Transactions</span>
+          <span class="text-[8px] text-emerald-400 font-mono flex items-center gap-1">
+            <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping"></span> Live Sync
+          </span>
+        </div>
+        <div id="recentActivityList" class="space-y-1.5 text-[10px]">
+          <div class="flex items-center justify-between p-1.5 rounded-lg bg-slate-950/60 border border-slate-800/60">
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center justify-center text-[9px]">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <div>
+                <p class="font-bold text-slate-200">Marjane Market</p>
+                <p class="text-[8px] text-slate-500">Casablanca • Pos Terminal</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-mono font-bold text-white">-350.00 MAD</p>
+              <p class="text-[8px] text-emerald-400 font-medium">APPROUVÉ</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+        <div class="h-4 bg-slate-950 flex items-center justify-center">
+      <div class="w-28 h-1 bg-slate-700 rounded-full"></div>
+    </div>
+  </div>
+
+  <script>
+    const WEBHOOK_URL = "https://stg-orch-api.abafusion.ai/webhook/webhook-d05c8609-1a80-4db7-b3cf-ef3550c96a64/transaction";
+    let currentMode = 'db';
+    let currentScenario = 'NORMAL';
+
+    function changerMode(mode) {
+      currentMode = mode;
+      const btnDb = document.getElementById('btnMode-db');
+      const btnWebhook = document.getElementById('btnMode-webhook');
+      const btnDual = document.getElementById('btnMode-dual');
+      const badge = document.getElementById('destinationBadge');
+
+      [btnDb, btnWebhook, btnDual].forEach(b => {
+        b.className = "py-1 px-2 rounded-md text-[10px] font-bold transition text-slate-400 hover:text-white flex items-center justify-center gap-1";
+      });
+
+      if (mode === 'db') {
+        btnDb.className = "py-1 px-2 rounded-md text-[10px] font-bold transition bg-emerald-600 text-white shadow flex items-center justify-center gap-1";
+        badge.innerText = "Base de Données";
+        badge.className = "text-[9px] font-mono text-emerald-400 font-bold";
+      } else if (mode === 'webhook') {
+        btnWebhook.className = "py-1 px-2 rounded-md text-[10px] font-bold transition bg-sky-600 text-white shadow flex items-center justify-center gap-1";
+        badge.innerText = "Webhook Fusion AI";
+        badge.className = "text-[9px] font-mono text-sky-400 font-bold";
+      } else if (mode === 'dual') {
+        btnDual.className = "py-1 px-2 rounded-md text-[10px] font-bold transition bg-indigo-600 text-white shadow flex items-center justify-center gap-1";
+        badge.innerText = "Base + Webhook";
+        badge.className = "text-[9px] font-mono text-indigo-400 font-bold";
+      }
+    }
+
+    const profiles = {
+      "CUST-1001": {
+        id: "CUST-1001",
+        name: "Fatima Zahra (Sarah) Alami",
+        cin: "BE849201",
+        phone: "+212 661-892341",
+        balance: "28 450,00 MAD",
+        balanceNum: 28450,
+        rib: "230780000123456789012345",
+        device: "iPhone 14 Pro (iOS 17.4)",
+        devices: ["iPhone 14 Pro (iOS 17.4)", "MacBook Air M2 (Chrome 122)"],
+        city: "Casablanca",
+        country: "MA",
+        dailyLimit: 10000,
+        avgAmount: 350,
+        avgDailyTx: 2.2,
+        avgWeeklyTx: 14,
+        trustedBeneficiaries: [
+          { rib: "007780000998877665544321", name: "Loyer Maarif Casa" },
+          { rib: "181810000112233445566778", name: "Lydec Casablanca" }
+        ]
+      },
+      "CUST-1002": {
+        id: "CUST-1002",
+        name: "Mehdi Benjelloun",
+        cin: "AA109482",
+        phone: "+212 770-142536",
+        balance: "43 200,00 MAD",
+        balanceNum: 43200,
+        rib: "007780000456123789012318",
+        device: "Samsung Galaxy S24 Ultra",
+        devices: ["Samsung Galaxy S24 Ultra", "Dell XPS 15 (Ubuntu 22.04)"],
+        city: "Rabat",
+        country: "MA",
+        dailyLimit: 15000,
+        avgAmount: 420,
+        avgDailyTx: 4.5,
+        avgWeeklyTx: 28,
+        trustedBeneficiaries: [
+          { rib: "230780000554433221100998", name: "Redal Rabat Distribution" }
+        ]
+      },
+      "CUST-1003": {
+        id: "CUST-1003",
+        name: "Karim Idrissi",
+        cin: "KB550192",
+        phone: "+212 614-998877",
+        balance: "62 100,00 MAD",
+        balanceNum: 62100,
+        rib: "181810000987654321012390",
+        device: "iPhone 13 (iOS 16.5)",
+        devices: ["iPhone 13 (iOS 16.5)"],
+        city: "Tanger",
+        country: "MA",
+        dailyLimit: 25000,
+        avgAmount: 850,
+        avgDailyTx: 1.2,
+        avgWeeklyTx: 8,
+        trustedBeneficiaries: [
+          { rib: "011780000665544332211009", name: "Amis Tanger Commerce" }
+        ]
+      },
+      "CUST-1004": {
+        id: "CUST-1004",
+        name: "Yasmine Tazi",
+        cin: "BK441209",
+        phone: "+212 662-334455",
+        balance: "19 500,00 MAD",
+        balanceNum: 19500,
+        rib: "011780000112233445566788",
+        device: "iPhone 15 Pro",
+        devices: ["iPhone 15 Pro", "iPad Air"],
+        city: "Casablanca",
+        country: "MA",
+        dailyLimit: 8000,
+        avgAmount: 280,
+        avgDailyTx: 3.0,
+        avgWeeklyTx: 18,
+        trustedBeneficiaries: [
+          { rib: "007780000776655443322110", name: "Ecole Internationale Anfa" }
+        ]
+      },
+      "CUST-1005": {
+        id: "CUST-1005",
+        name: "Omar Berrada",
+        cin: "CD772190",
+        phone: "+212 663-778899",
+        balance: "34 800,00 MAD",
+        balanceNum: 34800,
+        rib: "013780000998877665544322",
+        device: "Google Pixel 8",
+        devices: ["Google Pixel 8"],
+        city: "Fès",
+        country: "MA",
+        dailyLimit: 12000,
+        avgAmount: 550,
+        avgDailyTx: 5.0,
+        avgWeeklyTx: 32,
+        trustedBeneficiaries: [
+          { rib: "181810000332211009988776", name: "RADEEF Distribution Fes" }
+        ]
+      },
+      "CUST-1006": {
+        id: "CUST-1006",
+        name: "Salma Chraibi",
+        cin: "EE338192",
+        phone: "+212 664-112233",
+        balance: "51 200,00 MAD",
+        balanceNum: 51200,
+        rib: "021780000445566778899011",
+        device: "iPhone 14 (iOS 17.1)",
+        devices: ["iPhone 14 (iOS 17.1)"],
+        city: "Marrakech",
+        country: "MA",
+        dailyLimit: 18000,
+        avgAmount: 620,
+        avgDailyTx: 1.0,
+        avgWeeklyTx: 6.5,
+        trustedBeneficiaries: [
+          { rib: "230780000887766554433221", name: "RADEEMA Marrakech" }
+        ]
+      },
+      "CUST-1007": {
+        id: "CUST-1007",
+        name: "Reda El Amrani",
+        cin: "JA992144",
+        phone: "+212 771-556677",
+        balance: "22 100,00 MAD",
+        balanceNum: 22100,
+        rib: "230780000889900112233445",
+        device: "Xiaomi 13T Pro",
+        devices: ["Xiaomi 13T Pro"],
+        city: "Agadir",
+        country: "MA",
+        dailyLimit: 9000,
+        avgAmount: 310,
+        avgDailyTx: 2.0,
+        avgWeeklyTx: 12,
+        trustedBeneficiaries: [
+          { rib: "007780000110099887766554", name: "RAMSA Agadir" }
+        ]
+      },
+      "CUST-1008": {
+        id: "CUST-1008",
+        name: "Houda Mansouri",
+        cin: "AB661203",
+        phone: "+212 665-990011",
+        balance: "38 900,00 MAD",
+        balanceNum: 38900,
+        rib: "007780000223344556677889",
+        device: "iPhone 15",
+        devices: ["iPhone 15"],
+        city: "Rabat",
+        country: "MA",
+        dailyLimit: 14000,
+        avgAmount: 490,
+        avgDailyTx: 2.8,
+        avgWeeklyTx: 17.5,
+        trustedBeneficiaries: [
+          { rib: "181810000443322110099887", name: "Maroc Telecom Fibre" }
+        ]
+      },
+      "CUST-1009": {
+        id: "CUST-1009",
+        name: "Amine Filali",
+        cin: "BH881290",
+        phone: "+212 615-445566",
+        balance: "47 600,00 MAD",
+        balanceNum: 47600,
+        rib: "181810000334455667788990",
+        device: "Samsung Galaxy Z Flip 5",
+        devices: ["Samsung Galaxy Z Flip 5"],
+        city: "Casablanca",
+        country: "MA",
+        dailyLimit: 20000,
+        avgAmount: 720,
+        avgDailyTx: 1.5,
+        avgWeeklyTx: 10,
+        trustedBeneficiaries: [
+          { rib: "011780000887766554433229", name: "Inwi Entreprise" }
+        ]
+      },
+      "CUST-1010": {
+        id: "CUST-1010",
+        name: "Nadia Kabbaj",
+        cin: "KC221940",
+        phone: "+212 772-889900",
+        balance: "27 300,00 MAD",
+        balanceNum: 27300,
+        rib: "011780000556677889900112",
+        device: "iPhone 14 Plus",
+        devices: ["iPhone 14 Plus"],
+        city: "Tanger",
+        country: "MA",
+        dailyLimit: 11000,
+        avgAmount: 390,
+        avgDailyTx: 3.5,
+        avgWeeklyTx: 22,
+        trustedBeneficiaries: [
+          { rib: "230780000332211004455667", name: "Amendis Tanger" }
+        ]
+      }
+    };
+
+    const KNOWN_USED_IDS = new Set([
+      'TRX-APP-1789052044-885', 'TRX-APP-1789395497-536', 'TRX-TEST-1789474922',
+      'TRX-APP-1789488691-174', 'TRX-TEST-CUST1002-999', 'TRX-APP-1789052267-680',
+      'TRX-APP-1789052277-425', 'TRX-APP-1789396008-529', 'TRX-APP-1789396018-965',
+      'TRX-SCEN-NORMAL-1789476320', 'TRX-SCEN-FRAUD-1789476321', 'TRX-SCEN-FP-1789476321',
+      'TRX-APP-1789052273-618', 'TRX-APP-1789507632-579'
+    ]);
+
+    async function fetchCustomersFromSupabase(forceRefresh = false) {
+      const syncBadge = document.getElementById('syncBadge');
+      const syncText = document.getElementById('syncText');
+      if (syncText && forceRefresh) syncText.innerText = "Synchronisation...";
+
+      try {
+        const supabaseUrl = "https://dayemaufmjhwhoelmctf.supabase.co/rest/v1/customers?select=*";
+        const serviceKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRheWVtYXVmbWpod2hvZWxtY3RmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4ODc5OTU0NiwiZXhwIjoyMTA0Mzc1NTQ2fQ.D1HNPgOTa06ZzpIF3l4pvDhcm231-ElT91aCX9_8X-s";
+
+        const res = await fetch(supabaseUrl, {
+          headers: {
+            'apikey': serviceKey,
+            'Authorization': 'Bearer ' + serviceKey
+          }
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const rows = await res.json();
+        if (Array.isArray(rows) && rows.length > 0) {
+          rows.forEach(r => {
+            const id = r.customer_id;
+            const trustedBens = Array.isArray(r.trusted_beneficiaries) ? r.trusted_beneficiaries : [];
+            const trustedDevs = Array.isArray(r.trusted_devices) ? r.trusted_devices : [];
+
+            profiles[id] = {
+              id: id,
+              name: r.full_name || (profiles[id] ? profiles[id].name : id),
+              cin: r.cin || (profiles[id] ? profiles[id].cin : "—"),
+              phone: r.phone_number || (profiles[id] ? profiles[id].phone : "—"),
+              balance: Number(r.current_balance || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 }) + " MAD",
+              balanceNum: Number(r.current_balance || 0),
+              rib: r.primary_rib || (profiles[id] ? profiles[id].rib : ""),
+              device: trustedDevs[0] || (profiles[id] ? profiles[id].device : "Smartphone"),
+              devices: trustedDevs.length > 0 ? trustedDevs : (profiles[id] ? profiles[id].devices : []),
+              city: r.home_city || (profiles[id] ? profiles[id].city : "Casablanca"),
+              country: "MA",
+              dailyLimit: Number(r.daily_limit || 10000),
+              avgAmount: Number(r.avg_transaction_amount || 350),
+              avgDailyTx: Number(r.avg_daily_transactions || 2.0),
+              avgWeeklyTx: Number(r.avg_weekly_transactions || 14),
+              trustedBeneficiaries: trustedBens.length > 0 ? trustedBens : (profiles[id] ? profiles[id].trustedBeneficiaries : []),
+              lastLocation: r.last_location_city || r.home_city,
+              lastTxAt: r.last_transaction_at
+            };
+          });
+
+          if (syncText) syncText.innerText = `${rows.length} Profils Supabase`;
+          if (syncBadge) syncBadge.className = "text-[8px] font-mono text-emerald-400 flex items-center gap-1";
+          switchProfile();
+        }
+      } catch (err) {
+        console.warn("Échec synchro live clients Supabase, conservation du cache:", err);
+        if (syncText) syncText.innerText = "10 Profils (Local)";
+        if (syncBadge) syncBadge.className = "text-[8px] font-mono text-slate-400 flex items-center gap-1";
+      }
+    }
+
+    function generateFreshUniqueTxnId() {
+      let id;
+      let counter = 0;
+      do {
+        const ts = Math.floor(Date.now() / 1000) + counter;
+        const rand = Math.floor(Math.random() * 900 + 100);
+        id = `TRX-APP-${ts}-${rand}`;
+        counter++;
+      } while (KNOWN_USED_IDS.has(id));
+      KNOWN_USED_IDS.add(id);
+      const inputEl = document.getElementById('txnIdInput');
+      if (inputEl) inputEl.value = id;
+      return id;
+    }
+
+    function regenerateTxnId() {
+      const id = generateFreshUniqueTxnId();
+      updatePayloadPreview();
+      return id;
+    }
+
+    function getOrGenerateTxnId() {
+      const inputEl = document.getElementById('txnIdInput');
+      if (inputEl && inputEl.value.trim() && !KNOWN_USED_IDS.has(inputEl.value.trim())) {
+        return inputEl.value.trim();
+      }
+      return generateFreshUniqueTxnId();
+    }
+
+    function switchProfile() {
+      const custId = document.getElementById('profileSelect').value;
+      const p = profiles[custId] || profiles["CUST-1001"];
+
+      const badge = document.getElementById('profileCustIdBadge');
+      if (badge) badge.innerText = p.id;
+
+      const holder = document.getElementById('profileHolder');
+      if (holder) holder.innerText = p.name;
+
+      const cinEl = document.getElementById('profileCin');
+      if (cinEl) cinEl.innerText = "CIN: " + (p.cin || "—");
+
+      const phoneEl = document.getElementById('profilePhone');
+      if (phoneEl) phoneEl.innerHTML = `<i class="fa-solid fa-phone text-[7px]"></i> ${p.phone || "—"}`;
+
+      const ribEl = document.getElementById('profileRib');
+      if (ribEl) {
+        ribEl.innerText = "RIB: " + p.rib.replace(/(\d{4})/g, '$1 ').trim();
+      }
+
+      const bal = document.getElementById('profileBalance');
+      if (bal) bal.innerText = p.balance;
+
+      const devText = document.getElementById('profileDeviceText');
+      if (devText) devText.innerText = p.device;
+
+      const cityText = document.getElementById('profileCityText');
+      if (cityText) cityText.innerText = p.city + ", " + p.country;
+
+      const limitText = document.getElementById('profileLimitText');
+      if (limitText) limitText.innerText = p.dailyLimit.toLocaleString('fr-FR') + " MAD";
+
+      const benText = document.getElementById('profileBeneficiaryText');
+      if (benText) {
+        const firstBen = (p.trustedBeneficiaries && p.trustedBeneficiaries[0]) ? p.trustedBeneficiaries[0].name : "—";
+        benText.innerText = firstBen;
+      }
+
+      const avgSpendText = document.getElementById('profileAvgSpendText');
+      if (avgSpendText) {
+        avgSpendText.innerText = "Moy: " + (p.avgAmount || 350) + " MAD";
+      }
+
+      loadScenario(currentScenario, false);
+    }
+
+    function loadScenario(type, shouldRegenerateId = true) {
+      currentScenario = type;
+      const custId = document.getElementById('profileSelect').value;
+      const p = profiles[custId] || profiles["CUST-1001"];
+
+      if (shouldRegenerateId) {
+        generateFreshUniqueTxnId();
+      }
+
+      if (type === 'NORMAL') {
+        document.getElementById('txnAmount').value = p.avgAmount || 350;
+        document.getElementById('txnType').value = "CARD_PAYMENT";
+        document.getElementById('txnCity').value = p.city;
+        document.getElementById('txnCountry').value = p.country;
+        document.getElementById('txnBeneficiary').value = "Marjane " + p.city;
+        document.getElementById('txnPin').value = "false";
+      } else if (type === 'FRAUD') {
+          const fraudAmount = Math.max(22000, p.dailyLimit + 5000);
+        document.getElementById('txnAmount').value = fraudAmount;
+        document.getElementById('txnType').value = "TRANSFER";
+        document.getElementById('txnCity').value = "Dakar";
+        document.getElementById('txnCountry').value = "SN";
+        document.getElementById('txnBeneficiary').value = "Amadou Diallo (SN08-9999-7777)";
+        document.getElementById('txnPin').value = "false";
+      } else if (type === 'FP') {
+        document.getElementById('txnAmount').value = Math.min(12000, p.dailyLimit);
+        document.getElementById('txnType').value = "CARD_PAYMENT";
+        document.getElementById('txnCity').value = p.city;
+        document.getElementById('txnCountry').value = p.country;
+        document.getElementById('txnBeneficiary').value = "Electroplanet " + p.city;
+        document.getElementById('txnPin').value = "true";
+      } else if (type === 'VELOCITY') {
+        document.getElementById('txnAmount').value = 4500;
+        document.getElementById('txnType').value = "CARD_PAYMENT";
+        document.getElementById('txnCity').value = p.city;
+        document.getElementById('txnCountry').value = p.country;
+        document.getElementById('txnBeneficiary').value = "FastPay Online Store";
+        document.getElementById('txnPin').value = "false";
+      } else if (type === 'CRYPTO') {
+        document.getElementById('txnAmount').value = Math.max(18500, Math.round(p.dailyLimit * 0.9));
+        document.getElementById('txnType').value = "TRANSFER";
+        document.getElementById('txnCity').value = p.city;
+        document.getElementById('txnCountry').value = p.country;
+        document.getElementById('txnBeneficiary').value = "Binance P2P Escrow";
+        document.getElementById('txnPin').value = "false";
+      } else if (type === 'RESET') {
+        document.getElementById('txnAmount').value = p.avgAmount || 350;
+        document.getElementById('txnType').value = "CARD_PAYMENT";
+        document.getElementById('txnCity').value = p.city;
+        document.getElementById('txnCountry').value = p.country;
+        document.getElementById('txnBeneficiary').value = "Marjane " + p.city;
+        document.getElementById('txnPin').value = "false";
+      }
+
+      document.querySelectorAll('.scenario-btn').forEach(btn => btn.classList.remove('ring-2', 'ring-sky-400'));
+      const activeBtn = document.getElementById(`scen-${type}`);
+      if (activeBtn) activeBtn.classList.add('ring-2', 'ring-sky-400');
+
+      updatePayloadPreview();
+    }
+
+    function generatePayload() {
+      const custId = document.getElementById('profileSelect').value;
+      const p = profiles[custId] || profiles["CUST-1001"];
+      const amount = Number(document.getElementById('txnAmount').value);
+      const txnType = document.getElementById('txnType').value;
+      const city = document.getElementById('txnCity').value;
+      const country = document.getElementById('txnCountry').value;
+      const isPin = document.getElementById('txnPin').value === "true";
+      const isFraud = (currentScenario === 'FRAUD' || country !== 'MA' || amount > p.dailyLimit);
+      const isVelocity = (currentScenario === 'VELOCITY');
+      const isCrypto = (currentScenario === 'CRYPTO');
+      
+      const deviceId = isFraud ? "Linux x86_64 (Tor Browser)" : p.device;
+      const nowIso = new Date().toISOString();
+      const uniqueId = getOrGenerateTxnId();
+
+      let validChannel = 'pos_terminal';
+      if (txnType === 'TRANSFER' || isFraud || isCrypto) {
+        validChannel = 'web_banking';
+      } else if (txnType === 'ATM_WITHDRAWAL') {
+        validChannel = 'atm_gab';
+      } else if (txnType === 'CARD_PAYMENT') {
+        validChannel = 'pos_terminal';
+      }
+
+      let validAuth = 'BIOMETRIC';
+      if (isPin) {
+        validAuth = 'CHIP_AND_PIN';
+      } else if (isFraud || isCrypto) {
+        validAuth = 'NONE';
+      } else if (txnType === 'TRANSFER') {
+        validAuth = 'SMS_OTP';
+      }
+
+      let benRib = null;
+      if (isFraud) {
+        benRib = "007780000998877665544999";
+      } else if (txnType === 'TRANSFER' || amount > 1000) {
+        benRib = (p.trustedBeneficiaries && p.trustedBeneficiaries[0]) ? p.trustedBeneficiaries[0].rib : "230780000554433221100998";
+      }
+
+      let merchantCat = isPin ? "electronics" : (amount > 1000 ? "wire_transfer" : "supermarket");
+      let ipAddr = isFraud ? "154.124.33.10" : "196.200.145.22";
+      let count10m = isFraud ? 4 : 1;
+      let countHour = isFraud ? 5 : 1;
+      let countToday = isFraud ? 6 : Math.min(2, Math.round(p.avgDailyTx || 2));
+      let cumulativeAmt = isFraud ? Math.max(amount, p.dailyLimit + 5000) : (isPin ? amount + (p.avgAmount || 350) : (p.avgAmount || 350));
+
+      if (isVelocity) {
+        count10m = 5;
+        countHour = 6;
+        countToday = 8;
+        cumulativeAmt = Math.max(p.dailyLimit + 2000, 25000);
+        merchantCat = "wire_transfer";
+      } else if (isCrypto) {
+        merchantCat = "crypto";
+        ipAddr = "185.220.101.5";
+        cumulativeAmt = Math.max(amount, Math.round(p.dailyLimit * 0.9));
+      }
+
+      return {
+        transaction_id: uniqueId,
+        customer_id: p.id,
+        source_rib: p.rib,
+        transaction_type: txnType,
+        amount: amount,
+        currency: "MAD",
+        channel: validChannel,
+        
+        location_city: city,
+        location_country: (country || "MA").substring(0, 2).toUpperCase(),
+        device_id: deviceId,
+        auth_factor: validAuth,
+        beneficiary_name: document.getElementById('txnBeneficiary').value,
+        beneficiary_rib: benRib,
+        merchant_category: merchantCat,
+        ip_address: ipAddr,
+        
+        prev_location_city: p.city,
+        prev_transaction_at: isFraud ? new Date(Date.now() - 15 * 60 * 1000).toISOString() : new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
+        timestamp: nowIso,
+        
+        tx_count_last_10m: count10m,
+        tx_count_last_hour: countHour,
+        tx_count_today: countToday,
+        daily_cumulative_amount: cumulativeAmt,
+        is_cheked: false,
+
+        id: Math.floor(Math.random() * 1000) + 10,
+        card_pan_masked: "4532 **** **** 1024",
+        customer_avg_daily_tx_count: p.avgDailyTx || 2.0,
+
+        city: city,
+        country: country,
+        phone_id: deviceId,
+        beneficiary_account: benRib,
+        is_chip_pin: isPin
+      };
+    }
+
+    const PG_FIELDS = [
+      { name: "id", tableID: 18267, columnID: 1, dataTypeID: 20, dataTypeSize: 8, dataTypeModifier: -1, format: "text" },
+      { name: "transaction_id", tableID: 18267, columnID: 2, dataTypeID: 1043, dataTypeSize: -1, dataTypeModifier: 54, format: "text" },
+      { name: "customer_id", tableID: 18267, columnID: 3, dataTypeID: 1043, dataTypeSize: -1, dataTypeModifier: 24, format: "text" },
+      { name: "source_rib", tableID: 18267, columnID: 4, dataTypeID: 1042, dataTypeSize: -1, dataTypeModifier: 28, format: "text" },
+      { name: "card_pan_masked", tableID: 18267, columnID: 5, dataTypeID: 1043, dataTypeSize: -1, dataTypeModifier: 24, format: "text" },
+      { name: "transaction_type", tableID: 18267, columnID: 6, dataTypeID: 1043, dataTypeSize: -1, dataTypeModifier: 34, format: "text" },
+      { name: "amount", tableID: 18267, columnID: 7, dataTypeID: 1700, dataTypeSize: -1, dataTypeModifier: 655366, format: "text" },
+      { name: "currency", tableID: 18267, columnID: 8, dataTypeID: 1043, dataTypeSize: -1, dataTypeModifier: 7, format: "text" },
+      { name: "channel", tableID: 18267, columnID: 9, dataTypeID: 1043, dataTypeSize: -1, dataTypeModifier: 24, format: "text" },
+      { name: "beneficiary_name", tableID: 18267, columnID: 10, dataTypeID: 1043, dataTypeSize: -1, dataTypeModifier: 104, format: "text" },
+      { name: "beneficiary_rib", tableID: 18267, columnID: 11, dataTypeID: 1042, dataTypeSize: -1, dataTypeModifier: 28, format: "text" },
+      { name: "merchant_category", tableID: 18267, columnID: 12, dataTypeID: 1043, dataTypeSize: -1, dataTypeModifier: 54, format: "text" },
+      { name: "location_city", tableID: 18267, columnID: 13, dataTypeID: 1043, dataTypeSize: -1, dataTypeModifier: 54, format: "text" },
+      { name: "location_country", tableID: 18267, columnID: 14, dataTypeID: 1043, dataTypeSize: -1, dataTypeModifier: 6, format: "text" },
+      { name: "ip_address", tableID: 18267, columnID: 15, dataTypeID: 1043, dataTypeSize: -1, dataTypeModifier: 49, format: "text" },
+      { name: "device_id", tableID: 18267, columnID: 16, dataTypeID: 1043, dataTypeSize: -1, dataTypeModifier: 104, format: "text" },
+      { name: "auth_factor", tableID: 18267, columnID: 17, dataTypeID: 1043, dataTypeSize: -1, dataTypeModifier: 34, format: "text" },
+      { name: "prev_location_city", tableID: 18267, columnID: 18, dataTypeID: 1043, dataTypeSize: -1, dataTypeModifier: 54, format: "text" },
+      { name: "prev_transaction_at", tableID: 18267, columnID: 19, dataTypeID: 1184, dataTypeSize: 8, dataTypeModifier: -1, format: "text" },
+      { name: "timestamp", tableID: 18267, columnID: 21, dataTypeID: 1184, dataTypeSize: 8, dataTypeModifier: -1, format: "text" },
+      { name: "tx_count_last_10m", tableID: 18267, columnID: 22, dataTypeID: 23, dataTypeSize: 4, dataTypeModifier: -1, format: "text" },
+      { name: "tx_count_last_hour", tableID: 18267, columnID: 23, dataTypeID: 23, dataTypeSize: 4, dataTypeModifier: -1, format: "text" },
+      { name: "tx_count_today", tableID: 18267, columnID: 24, dataTypeID: 23, dataTypeSize: 4, dataTypeModifier: -1, format: "text" },
+      { name: "daily_cumulative_amount", tableID: 18267, columnID: 25, dataTypeID: 1700, dataTypeSize: -1, dataTypeModifier: 655366, format: "text" },
+      { name: "customer_avg_daily_tx_count", tableID: 18267, columnID: 26, dataTypeID: 701, dataTypeSize: 8, dataTypeModifier: -1, format: "text" },
+      { name: "is_cheked", tableID: 18267, columnID: 28, dataTypeID: 16, dataTypeSize: 1, dataTypeModifier: -1, format: "text" }
+    ];
+
+    const PG_METADATA = {
+      _parsers: Array(26).fill("[Function]"),
+      _types: {
+        _types: {
+          getTypeParser: "[Function]",
+          setTypeParser: "[Function]",
+          arrayParser: { create: "[Function]" },
+          builtins: {
+            BOOL: 16, BYTEA: 17, CHAR: 18, INT8: 20, INT2: 21, INT4: 23,
+            REGPROC: 24, TEXT: 25, OID: 26, TID: 27, XID: 28, CID: 29,
+            JSON: 114, XML: 142, PG_NODE_TREE: 194, SMGR: 210, PATH: 602,
+            POLYGON: 604, CIDR: 650, FLOAT4: 700, FLOAT8: 701, ABSTIME: 702,
+            RELTIME: 703, TINTERVAL: 704, CIRCLE: 718, MACADDR8: 774,
+            MONEY: 790, MACADDR: 829, INET: 869, ACLITEM: 1033, BPCHAR: 1042,
+            VARCHAR: 1043, DATE: 1082, TIME: 1083, TIMESTAMP: 1114,
+            TIMESTAMPTZ: 1184, INTERVAL: 1186, TIMETZ: 1266, BIT: 1560,
+            VARBIT: 1562, NUMERIC: 1700, REFCURSOR: 1790, REGPROCEDURE: 2202,
+            REGOPER: 2203, REGOPERATOR: 2204, REGCLASS: 2205, REGTYPE: 2206,
+            UUID: 2950, TXID_SNAPSHOT: 2970, PG_LSN: 3220, PG_NDISTINCT: 3361,
+            PG_DEPENDENCIES: 3402, TSVECTOR: 3614, TSQUERY: 3615,
+            GTSVECTOR: 3642, REGCONFIG: 3734, REGDICTIONARY: 3769,
+            JSONB: 3802, REGNAMESPACE: 4089, REGROLE: 4096
+          }
+        },
+        text: {},
+        binary: {}
+      },
+      RowCtor: null,
+      rowAsArray: false,
+      _prebuiltEmptyResultObject: {
+        id: null, transaction_id: null, customer_id: null, source_rib: null,
+        card_pan_masked: null, transaction_type: null, amount: null, currency: null,
+        channel: null, beneficiary_name: null, beneficiary_rib: null,
+        merchant_category: null, location_city: null, location_country: null,
+        ip_address: null, device_id: null, auth_factor: null,
+        prev_location_city: null, prev_transaction_at: null, timestamp: null,
+        tx_count_last_10m: null, tx_count_last_hour: null, tx_count_today: null,
+        daily_cumulative_amount: null, customer_avg_daily_tx_count: null,
+        is_cheked: null
+      }
+    };
+
+    function formatAsPostgresSelect(payload) {
+      const row = {
+        id: payload.id || Math.floor(Math.random() * 1000) + 10,
+        transaction_id: payload.transaction_id,
+        customer_id: payload.customer_id,
+        source_rib: payload.source_rib,
+        card_pan_masked: payload.card_pan_masked || "4532 **** **** 1024",
+        transaction_type: payload.transaction_type,
+        amount: payload.amount,
+        currency: payload.currency || "MAD",
+        channel: payload.channel,
+        beneficiary_name: payload.beneficiary_name || null,
+        beneficiary_rib: payload.beneficiary_rib || null,
+        merchant_category: payload.merchant_category || "general",
+        location_city: payload.location_city,
+        location_country: payload.location_country,
+        ip_address: payload.ip_address,
+        device_id: payload.device_id,
+        auth_factor: payload.auth_factor,
+        prev_location_city: payload.prev_location_city,
+        prev_transaction_at: payload.prev_transaction_at,
+        timestamp: payload.timestamp,
+        tx_count_last_10m: payload.tx_count_last_10m,
+        tx_count_last_hour: payload.tx_count_last_hour,
+        tx_count_today: payload.tx_count_today,
+        daily_cumulative_amount: payload.daily_cumulative_amount,
+        customer_avg_daily_tx_count: payload.customer_avg_daily_tx_count || 2,
+        is_cheked: payload.is_cheked || false,
+        source_account_id: payload.source_rib,
+        beneficiary_account: payload.beneficiary_rib,
+        city: payload.location_city,
+        country: payload.location_country,
+        phone_id: payload.device_id,
+        is_chip_pin: payload.is_chip_pin
+      };
+
+      return {
+        command: "SELECT",
+        rowCount: 1,
+        oid: null,
+        rows: [ row ],
+        fields: PG_FIELDS,
+        _parsers: PG_METADATA._parsers,
+        _types: PG_METADATA._types,
+        RowCtor: PG_METADATA.RowCtor,
+        rowAsArray: PG_METADATA.rowAsArray,
+        _prebuiltEmptyResultObject: PG_METADATA._prebuiltEmptyResultObject
+      };
+    }
+
+    function updatePayloadPreview() {
+      const p = generatePayload();
+      const wrapped = formatAsPostgresSelect(p);
+      const pre = document.getElementById('payloadPreview');
+      if (pre) {
+        pre.innerText = JSON.stringify(wrapped, null, 2);
+      }
+    }
+
+    async function sendToSupabase(payload) {
+      const supabaseUrl = "https://dayemaufmjhwhoelmctf.supabase.co/rest/v1/transactions";
+      const serviceKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRheWVtYXVmbWpod2hvZWxtY3RmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4ODc5OTU0NiwiZXhwIjoyMTA0Mzc1NTQ2fQ.D1HNPgOTa06ZzpIF3l4pvDhcm231-ElT91aCX9_8X-s";
+
+      const dbRow = {
+        transaction_id: payload.transaction_id,
+        customer_id: payload.customer_id,
+        source_rib: payload.source_rib,
+        card_pan_masked: payload.card_pan_masked || "4532 **** **** 1024",
+        transaction_type: payload.transaction_type,
+        amount: payload.amount,
+        currency: "MAD",
+        channel: payload.channel,
+        beneficiary_name: payload.beneficiary_name || null,
+        beneficiary_rib: payload.beneficiary_rib || null,
+        merchant_category: payload.merchant_category || "general",
+        location_city: payload.location_city,
+        location_country: (payload.location_country || "MA").substring(0, 2).toUpperCase(),
+        ip_address: payload.ip_address,
+        device_id: payload.device_id,
+        auth_factor: payload.auth_factor,
+        prev_location_city: payload.prev_location_city || payload.location_city,
+        prev_transaction_at: payload.prev_transaction_at,
+        timestamp: payload.timestamp,
+        tx_count_last_10m: payload.tx_count_last_10m,
+        tx_count_last_hour: payload.tx_count_last_hour,
+        tx_count_today: payload.tx_count_today,
+        daily_cumulative_amount: payload.daily_cumulative_amount,
+        customer_avg_daily_tx_count: payload.customer_avg_daily_tx_count || 2.5,
+        is_cheked: false
+      };
+
+      const res = await fetch(supabaseUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': serviceKey,
+          'Authorization': 'Bearer ' + serviceKey,
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify([dbRow])
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Supabase [${res.status}]: ${errText}`);
+      }
+
+      return await res.json();
+    }
+
+    async function sendToWebhook(payload, url) {
+      const webhookBody = formatAsPostgresSelect(payload);
+
+      let res;
+      try {
+        res = await fetch(url, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'User-Agent': 'BankShield-ClientApp/3.0'
+          },
+          body: JSON.stringify(webhookBody)
+        });
+      } catch (directErr) {
+        try {
+          res = await fetch("http://localhost:8001/", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Target-Url': url
+            },
+            body: JSON.stringify(webhookBody)
+          });
+        } catch (proxyErr) {
+          throw new Error(`Webhook inaccessible : ${directErr.message}`);
+        }
+      }
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Webhook [${res.status}]: ${errText}`);
+      }
+
+      return res;
+    }
+
+    async function sendTransaction() {
+      const payload = generatePayload();
+
+      const btn = document.getElementById('btnSend');
+      const box = document.getElementById('resultBox');
+      const resStatus = document.getElementById('resStatus');
+      const resLatency = document.getElementById('resLatency');
+      const resMsg = document.getElementById('resMsg');
+
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Transmission...`;
+      box.classList.remove('hidden');
+      resStatus.innerText = "ENVOI EN COURS...";
+      resStatus.className = "font-bold text-sky-400";
+      resMsg.innerText = "Traitement en cours...";
+      const t0 = performance.now();
+
+      try {
+        const confirmations = [];
+
+        if (currentMode === 'db' || currentMode === 'dual') {
+          await sendToSupabase(payload);
+          confirmations.push("Enregistré dans Supabase (Live)");
+        }
+
+        if (currentMode === 'webhook' || currentMode === 'dual') {
+            if (currentMode === 'webhook') {
+            try {
+              await sendToSupabase(payload);
+              confirmations.push("Synchronisé dans Supabase (FK)");
+            } catch (syncErr) {
+              console.warn("Supabase pre-sync warning:", syncErr);
+            }
+          }
+          await sendToWebhook(payload, WEBHOOK_URL);
+          confirmations.push("Transmis au Webhook Fusion AI");
+        }
+
+        const latency = Math.round(performance.now() - t0);
+        btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Transmettre la Transaction`;
+        resStatus.innerText = "STATUS: SUCCÈS (200 / 201)";
+        resStatus.className = "font-bold text-emerald-400";
+        resLatency.innerText = `${latency} ms`;
+        resMsg.innerText = `Transaction ${payload.transaction_id} — ${confirmations.join(' ET ')} avec succès !`;
+        addRecentActivity(payload, true);
+        regenerateTxnId();
+
+      } catch (err) {
+        const latency = Math.round(performance.now() - t0);
+        btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Transmettre la Transaction`;
+        resStatus.innerText = "ERREUR DE TRANSMISSION";
+        resStatus.className = "font-bold text-rose-400";
+        resLatency.innerText = Math.round(performance.now() - t0) + " ms";
+        resMsg.innerText = err.message;
+      }
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      const clockEl = document.getElementById('clock');
+      if (clockEl) clockEl.innerText = timeStr;
+    }
+
+    function addRecentActivity(p, isSuccess) {
+      const list = document.getElementById('recentActivityList');
+      if (!list) return;
+
+      const isSuspect = (p.location_country !== 'MA' || p.amount > 10000 || currentScenario === 'FRAUD' || currentScenario === 'VELOCITY' || currentScenario === 'CRYPTO');
+      const badgeColor = isSuspect ? 'text-rose-400' : 'text-emerald-400';
+      const iconBg = isSuspect ? 'bg-rose-950 text-rose-400 border-rose-800' : 'bg-emerald-950 text-emerald-400 border-emerald-800';
+      const icon = isSuspect ? '<i class="fa-solid fa-triangle-exclamation"></i>' : '<i class="fa-solid fa-check"></i>';
+      const decisionLabel = isSuspect ? 'ANOMALIE DÉTECTÉE' : 'APPROUVÉ';
+
+      const item = document.createElement('div');
+      item.className = 'flex items-center justify-between p-1.5 rounded-lg bg-slate-950/80 border border-slate-800/80 transition';
+      item.innerHTML = `
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 rounded-full ${iconBg} border flex items-center justify-center text-[9px]">
+            ${icon}
+          </div>
+          <div>
+            <p class="font-bold text-slate-200 truncate max-w-[120px]">${p.beneficiary_name}</p>
+            <p class="text-[8px] text-slate-500">${p.location_city} • ${p.channel}</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="font-mono font-bold text-white">-${Number(p.amount).toFixed(2)} MAD</p>
+          <p class="text-[8px] ${badgeColor} font-medium">${decisionLabel}</p>
+        </div>
+      `;
+      list.insertBefore(item, list.firstChild);
+      if (list.children.length > 5) {
+        list.removeChild(list.lastChild);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      ['profileSelect', 'txnIdInput', 'txnAmount', 'txnType', 'txnCity', 'txnCountry', 'txnPin', 'txnBeneficiary'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', updatePayloadPreview);
+          el.addEventListener('change', updatePayloadPreview);
+        }
+      });
+      switchProfile();
+      fetchCustomersFromSupabase(false);
+      updatePayloadPreview();
+      updateClock();
+      setInterval(updateClock, 1000);
+    });
+  </script>
+</body>
+</html>
