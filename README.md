@@ -11,8 +11,8 @@
 
 ## 👥 Équipe
 
-| Membre | Rôle |
-|--------|------|
+| Membre |
+|--------|
 | **Jihane Majdoul** 
 | **Salma Boukhlal** 
 | **Yassine Hadrane** 
